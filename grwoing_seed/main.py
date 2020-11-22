@@ -11,6 +11,10 @@ import pygame
 
 class GrawingSeed(QWidget):
 
+    use_water = 0
+    use_pesticide = 0
+    use_umbrella = 0
+
     # 생성자
     def __init__(self):
         super().__init__()
@@ -22,10 +26,10 @@ class GrawingSeed(QWidget):
     # 화면 디자인 요소
     def start_growing_seed(self):
         # 메인 노래 설정
-        self.music_file = './music/main_music.mp3'
+        self.main_music_file = './music/main_music.mp3'
         pygame.init()
         pygame.mixer.init()
-        pygame.mixer.music.load(self.music_file)
+        pygame.mixer.music.load(self.main_music_file)
         pygame.mixer.music.play(-1)
         
         # 메인 화면 설정
@@ -40,20 +44,26 @@ class GrawingSeed(QWidget):
         # 게임 기록 버튼
         btn_record = QPushButton("", self.main_background_lb)
         btn_record.setGeometry(90, 475, 180, 85)
-        btn_record.setStyleSheet("background-color: yellow")
         btn_record.clicked.connect(self.btn_record_clicked)
+        opacity_effect = QGraphicsOpacityEffect(btn_record)
+        opacity_effect.setOpacity(0)
+        btn_record.setGraphicsEffect(opacity_effect)
 
         # 게임 시작 버튼
         btn_start = QPushButton("", self.main_background_lb)
         btn_start.setGeometry(310, 475, 180, 85)
-        btn_start.setStyleSheet("background-color: yellow")
         btn_start.clicked.connect(self.btn_start_clicked)
+        opacity_effect = QGraphicsOpacityEffect(btn_start)
+        opacity_effect.setOpacity(0)
+        btn_start.setGraphicsEffect(opacity_effect)
         
         # 게임 방법 버튼
         btn_rule = QPushButton("", self.main_background_lb)
         btn_rule.setGeometry(530, 475, 180, 85)
-        btn_rule.setStyleSheet("background-color: yellow")
         btn_rule.clicked.connect(self.btn_rule_clicked)
+        opacity_effect = QGraphicsOpacityEffect(btn_rule)
+        opacity_effect.setOpacity(0)
+        btn_rule.setGraphicsEffect(opacity_effect)
 
         # 메인 화면 창
         self.setWindowTitle("Growing Seed")  # 창 제목
@@ -90,26 +100,65 @@ class GrawingSeed(QWidget):
         # 게임 엔진 시작
         self.game_engine()
 
+        self.timer.start()
+
         self.main_background_lb.setVisible(False)
         self.game_background_lb.setVisible(True)
-        
+
+    def btn_go_home(self):
+        self.game_background_lb.setVisible(False)
+        self.game_over_lb.setVisible(False)
+        self.main_background_lb.setVisible(True)
+
+    # 게임 오버 화면
+    def game_over(self):
+        # 배경 사진 설정
+        self.game_over_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
+        game_background_3 = QtGui.QPixmap("./images/game_over.png")  # 사진 넣을 pixmap
+        self.game_over_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+        self.game_over_lb.setPixmap(game_background_3)  # 메인 배경 사진의 pixmap설정
+
+        self.game_over_home = QPushButton("", self.game_over_lb)
+        self.game_over_home.setGeometry(275, 438, 240, 100)
+        self.game_over_home.clicked.connect(self.btn_go_home)
+        self.game_over_home.setStyleSheet("background-color : yellow;")
+
     # 게임 엔진
     def game_engine(self):
-        music_file = './music/background_music_py.mp3'
+        self.music_file = './music/background_music_py.mp3'
         pygame.init()
         pygame.mixer.init()
-        pygame.mixer.music.load(music_file)
+        pygame.mixer.music.load(self.music_file)
         pygame.mixer.music.play(-1)
 
-        self.label_timer = QLabel("1", self.game_background_lb)
-        self.label_timer.setGeometry(660, 40, 100, 50)
-        self.label_timer.setFont(QFont('JalnanOTF', 30))
+        # 시간 라벨
+        self.label_timer = QLabel("0시간", self.game_background_lb)
+        self.label_timer.setGeometry(560, 40, 200, 50)
+        self.label_timer.setFont(QFont('JalnanOTF', 28))
         self.label_timer.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignRight)
+        
+        # 물 준 횟수 라벨
+        self.label_water = QLabel("0번", self.game_background_lb)
+        self.label_water.setGeometry(610, 200, 150, 40)
+        self.label_water.setFont(QFont('JalnanOTF', 18))
+        self.label_water.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignRight)
 
+        # 벌레 퇴치 횟수 라벨
+        self.label_bug = QLabel("0번", self.game_background_lb)
+        self.label_bug.setGeometry(610, 250, 150, 50)
+        self.label_bug.setFont(QFont('JalnanOTF', 18))
+        self.label_bug.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignRight)
+
+        # 환경오염 막은 횟수 라벨
+        self.label_clean = QLabel("0번", self.game_background_lb)
+        self.label_clean.setGeometry(610, 300, 150, 50)
+        self.label_clean.setFont(QFont('JalnanOTF', 18))
+        self.label_clean.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignRight)
+
+        # 시간
         self.timer = QTimer(self.game_background_lb)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.timeout)
-        self.timer.start()
 
         # 캐릭터 버튼
         self.btn_char = QPushButton("", self.game_background_lb)
@@ -136,15 +185,36 @@ class GrawingSeed(QWidget):
         self.btn_umbrella.setStyleSheet("background-image : url(./images/umbrella.png); border: 0px solid black;")
 
         btn_gotohome = QPushButton("", self.game_background_lb)
-        btn_gotohome.setGeometry(30, 30, 50, 50)
-        btn_gotohome.setStyleSheet("background-color: yellow")
+        btn_gotohome.setGeometry(52, 50, 50, 50)
         btn_gotohome.clicked.connect(self.gotohome)
+        opacity_effect = QGraphicsOpacityEffect(btn_gotohome)
+        opacity_effect.setOpacity(0)
+        btn_gotohome.setGraphicsEffect(opacity_effect)
 
+    # 게임 오버되었는지 확인하는 함수
+    def game_over_check(self):
+        # 한 아이템당 사용 횟수가 10 이상이면 게임 오버
+        if GrawingSeed.use_water >= 10 or GrawingSeed.use_pesticide >= 10 or GrawingSeed.use_umbrella >= 10:
+            self.item_timer.stop()  # 타이머를 멈춤
+            GrawingSeed.water_btn_time = 0  # 아이템 초수 초기화
+            GrawingSeed.pesticide_btn_time = 0  # 아이템 초수 초기화
+            GrawingSeed.umbrella_btn_time = 0  # 아이템 초수 초기화
+            self.game_background_lb.setVisible(False)
+            self.game_over_lb.setVisible(True)
+
+    # 게임 중단 확인 dialog
     def gotohome(self):
         reply = QMessageBox.question(self, '게임 중단', '정말 게임을 중단하시겠습니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             self.game_background_lb.setVisible(False)
             self.main_background_lb.setVisible(True)
+            self.main_music_file = './music/main_music.mp3'
+            
+            # 게임을 중단하고 메인으로 돌아갔을 때 메인화면 음악 재생
+            pygame.init()
+            pygame.mixer.init()
+            pygame.mixer.music.load(self.main_music_file)
+            pygame.mixer.music.play(-1)
         else:
             pass
 
@@ -152,106 +222,107 @@ class GrawingSeed(QWidget):
         sender = self.sender()
         self.time += 1
         if id(sender) == id(self.timer):
-            self.label_timer.setText(str(self.time))
+            if self.time % 10 == 0:
+                self.label_timer.setText(str(self.time // 10) + "시간")
 
     btn_timer_flag = 4
     water_btn_time = 0
     pesticide_btn_time = 0
     umbrella_btn_time = 0
 
-    def printTimeWater(self):
+    def printTime(self):
+        if self.btn_timer_flag == 0:
+            GrawingSeed.water_btn_time += 1
+            print(f'물뿌리개 타이머 : {GrawingSeed.water_btn_time}')
+        elif self.btn_timer_flag == 1:
+            GrawingSeed.pesticide_btn_time += 1
+            print(f'살충제 타이머 : {GrawingSeed.pesticide_btn_time}')
+        elif self.btn_timer_flag == 2:
+            GrawingSeed.umbrella_btn_time += 1
+            print(f'우산 타이머 : {GrawingSeed.umbrella_btn_time}')
 
-        GrawingSeed.water_btn_time += 1
-        print(f'물뿌리개 타이머 : {GrawingSeed.water_btn_time}')
-
-        if GrawingSeed.water_btn_time == 5:
-            self.btn_timer_flag = 4
-            self.btn_water.setEnabled(True)
-            self.water_timer.stop()
+        if GrawingSeed.water_btn_time == 5 or GrawingSeed.pesticide_btn_time == 5 or GrawingSeed.umbrella_btn_time == 5:
             GrawingSeed.water_btn_time = 0
-            self.btn_water.setStyleSheet("background-image : url(./images/watering.png); border: 0px solid black;")
-            self.btn_char.setStyleSheet("background-image : url(./images/first_stage.png); border: 0px solid black;")
-
-    def printTimePesticide(self):
-
-        GrawingSeed.pesticide_btn_time += 1
-        print(f'살충제 타이머 : {GrawingSeed.pesticide_btn_time}')
-
-        if GrawingSeed.pesticide_btn_time == 5:
-            self.btn_timer_flag = 4
-            self.btn_pesticide.setEnabled(True)
-            self.pesticide_timer.stop()
             GrawingSeed.pesticide_btn_time = 0
-            self.btn_pesticide.setStyleSheet("background-image : url(./images/pesticide.png); border: 0px solid black;")
-            self.btn_char.setStyleSheet("background-image : url(./images/first_stage.png); border: 0px solid black;")
-
-    def printTimeUmbrella(self):
-
-        GrawingSeed.umbrella_btn_time += 1
-        print(f'우산 타이머 : {GrawingSeed.umbrella_btn_time}')
-
-        if GrawingSeed.umbrella_btn_time == 5:
-            self.btn_timer_flag = 4
-            self.btn_umbrella.setEnabled(True)
-            self.umbrella_timer.stop()
             GrawingSeed.umbrella_btn_time = 0
+            self.btn_timer_flag = 4
+            self.btn_water.setEnabled(True)  # 물뿌리개 버튼 활성화
+            self.btn_pesticide.setEnabled(True)
+            self.btn_umbrella.setEnabled(True)
+            self.item_timer.stop()
+            self.btn_water.setStyleSheet("background-image : url(./images/watering.png); border: 0px solid black;")
+            self.btn_pesticide.setStyleSheet("background-image : url(./images/pesticide.png); border: 0px solid black;")
             self.btn_umbrella.setStyleSheet("background-image : url(./images/umbrella.png); border: 0px solid black;")
             self.btn_char.setStyleSheet("background-image : url(./images/first_stage.png); border: 0px solid black;")
+
+        self.game_over()
+        self.game_over_check()
 
     def btn_char_clicked(self):
         # 버튼 눌렸을 때 각각 시간을 재는 타이머들 초기화
         
         # 물뿌리개 타이머
-        self.water_timer = QTimer(self.game_background_lb)
-        self.water_timer.setInterval(1000)
-        self.water_timer.timeout.connect(self.printTimeWater)
-        
-        # 살충제 타이머
-        self.pesticide_timer = QTimer(self.game_background_lb)
-        self.pesticide_timer.setInterval(1000)
-        self.pesticide_timer.timeout.connect(self.printTimePesticide)
-
-        # 우산 타이머
-        self.umbrella_timer = QTimer(self.game_background_lb)
-        self.umbrella_timer.setInterval(1000)
-        self.umbrella_timer.timeout.connect(self.printTimeUmbrella)
+        self.item_timer = QTimer(self.game_background_lb)
+        self.item_timer.setInterval(1000)
+        self.item_timer.timeout.connect(self.printTime)
 
         if self.which_btn == 1:
+            GrawingSeed.use_water += 1
+            self.label_water.setText(str(GrawingSeed.use_water) + "번")
+
             try:
                 self.btn_timer_flag = 0
-                self.water_timer.start()    # 물뿌리개 타이머 시작
+                self.item_timer.start()    # 물뿌리개 타이머 시작
                 self.btn_water.setEnabled(False)    # 물뿌리개 버튼 비활성화
+                self.btn_pesticide.setEnabled(False)
+                self.btn_umbrella.setEnabled(False)
                 print("물뿌리개다!!")    # 디버깅용
                 self.which_btn = 0
                 self.setCursor(QtCore.Qt.PointingHandCursor)    # 커서 설정
                 self.btn_water.setStyleSheet("background-image : url(./images/watering_false.png); border: 0px solid black;")
+                self.btn_pesticide.setStyleSheet("background-image : url(./images/pesticide_false.png); border: 0px solid black;")
+                self.btn_umbrella.setStyleSheet("background-image : url(./images/umbrella_false.png); border: 0px solid black;")
                 self.btn_char.setStyleSheet("background-image : url(./images/first_stage_water.png); border: 0px solid black;")
                 
             except:
                 print("물뿌리개 에러---")
 
         elif self.which_btn == 2:
+            GrawingSeed.use_pesticide += 1
+            self.label_bug.setText(str(GrawingSeed.use_pesticide) + "번")
+
             try:
                 self.btn_timer_flag = 1
-                self.pesticide_timer.start()
+                self.item_timer.start()
+                self.btn_water.setEnabled(False)  # 물뿌리개 버튼 비활성화
                 self.btn_pesticide.setEnabled(False)
+                self.btn_umbrella.setEnabled(False)
                 print("살충제다!!")
                 self.which_btn = 0
                 self.setCursor(QtCore.Qt.PointingHandCursor)
+                self.btn_water.setStyleSheet("background-image : url(./images/watering_false.png); border: 0px solid black;")
                 self.btn_pesticide.setStyleSheet("background-image : url(./images/pesticide_false.png); border: 0px solid black;")
+                self.btn_umbrella.setStyleSheet("background-image : url(./images/umbrella_false.png); border: 0px solid black;")
                 self.btn_char.setStyleSheet("background-image : url(./images/first_stage_pesticide.png); border: 0px solid black;")
                 
             except:
                 print("살충제 에러---")
                 
         elif self.which_btn == 3:
+            GrawingSeed.use_umbrella += 1
+            self.label_clean.setText(str(GrawingSeed.use_umbrella) + "번")
+
             try:
                 self.btn_timer_flag = 2
-                self.umbrella_timer.start()
+                self.item_timer.start()
+                self.btn_water.setEnabled(False)  # 물뿌리개 버튼 비활성화
+                self.btn_pesticide.setEnabled(False)
                 self.btn_umbrella.setEnabled(False)
                 print("우산이다!!")
                 self.which_btn = 0
                 self.setCursor(QtCore.Qt.PointingHandCursor)
+                self.btn_water.setStyleSheet("background-image : url(./images/watering_false.png); border: 0px solid black;")
+                self.btn_pesticide.setStyleSheet("background-image : url(./images/pesticide_false.png); border: 0px solid black;")
                 self.btn_umbrella.setStyleSheet("background-image : url(./images/umbrella_false.png); border: 0px solid black;")
                 self.btn_char.setStyleSheet("background-image : url(./images/first_stage_umbrella.png); border: 0px solid black;")
 
@@ -289,8 +360,10 @@ class GrawingSeed(QWidget):
         # 뒤로가기 버튼
         btn_return = QPushButton("", self.rule_background_lb)
         btn_return.setGeometry(75, 55, 60, 60)
-        btn_return.setStyleSheet("background-color: yellow")
         btn_return.clicked.connect(self.btn_return_clicked)
+        opacity_effect = QGraphicsOpacityEffect(btn_return)
+        opacity_effect.setOpacity(0)
+        btn_return.setGraphicsEffect(opacity_effect)
 
         self.main_background_lb.setVisible(False)
         self.rule_background_lb.setVisible(True)
