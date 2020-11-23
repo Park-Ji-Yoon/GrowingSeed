@@ -15,13 +15,20 @@ class GrawingSeed(QWidget):
     use_pesticide = 0
     use_umbrella = 0
 
+    current_level = 0
+
     # 생성자
     def __init__(self):
         super().__init__()
         self.start_growing_seed()
 
         self.time = 0
+        self.bug_time = 0
         self.which_btn = 0
+
+        self.isBug = False
+
+        self.bug_success = 0
 
     # 화면 디자인 요소
     def start_growing_seed(self):
@@ -123,6 +130,27 @@ class GrawingSeed(QWidget):
         self.game_over_home.clicked.connect(self.btn_go_home)
         self.game_over_home.setStyleSheet("background-color : yellow;")
 
+        # 아이템 사용 횟수 0으로 초기화
+        self.use_water = 0
+        self.use_pesticide = 0
+        self.use_umbrella = 0
+
+        # self.timer.stop()
+        # self.time = 0
+
+    def game_success(self):
+        # 배경 사진 설정
+        self.game_success_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
+        game_background_4 = QtGui.QPixmap("./images/game_over.png")  # 사진 넣을 pixmap
+        self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+        self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
+        
+        # 물 준 횟수, 살충제 사용 횟수, 우산 사용 횟수 0으로 초기화
+        # 아이템 사용 횟수 0으로 초기화
+        self.use_water = 0
+        self.use_pesticide = 0
+        self.use_umbrella = 0
+
     # 게임 엔진
     def game_engine(self):
         self.music_file = './music/background_music_py.mp3'
@@ -130,6 +158,8 @@ class GrawingSeed(QWidget):
         pygame.mixer.init()
         pygame.mixer.music.load(self.music_file)
         pygame.mixer.music.play(-1)
+
+        GrawingSeed.current_level = 1
 
         # 시간 라벨
         self.label_timer = QLabel("0시간", self.game_background_lb)
@@ -195,12 +225,36 @@ class GrawingSeed(QWidget):
     def game_over_check(self):
         # 한 아이템당 사용 횟수가 10 이상이면 게임 오버
         if GrawingSeed.use_water >= 10 or GrawingSeed.use_pesticide >= 10 or GrawingSeed.use_umbrella >= 10:
-            self.item_timer.stop()  # 타이머를 멈춤
+            # self.item_timer.stop()  # 타이머를 멈춤
             GrawingSeed.water_btn_time = 0  # 아이템 초수 초기화
             GrawingSeed.pesticide_btn_time = 0  # 아이템 초수 초기화
             GrawingSeed.umbrella_btn_time = 0  # 아이템 초수 초기화
             self.game_background_lb.setVisible(False)
             self.game_over_lb.setVisible(True)
+
+    def growing(self, level):
+        if level == 1:
+            if GrawingSeed.use_water >= 2 and self.bug_success >= 1 and GrawingSeed.use_umbrella >= 1:
+                self.btn_char.setStyleSheet("background-image : url(./images/second_stage.png); border: 0px solid black;")
+                GrawingSeed.current_level = 2
+
+        elif level == 2:
+            if GrawingSeed.use_water >= 4 and self.bug_success >= 2 and GrawingSeed.use_umbrella >= 2:
+                self.btn_char.setStyleSheet("background-image : url(./images/third_stage.png); border: 0px solid black;")
+                GrawingSeed.current_level = 3
+
+        elif level == 3:
+            if GrawingSeed.use_water >= 6 and self.bug_success >= 3 and GrawingSeed.use_umbrella >= 3:
+                self.btn_char.setStyleSheet("background-image : url(./images/last_stage.png); border: 0px solid black;")
+                GrawingSeed.current_level = 4
+
+        elif level == 4:
+            if GrawingSeed.use_water >= 8 and self.bug_success >= 4 and GrawingSeed.use_umbrella >= 4:
+                self.game_success()
+
+                GrawingSeed.water_btn_time = 0  # 아이템 초수 초기화
+                GrawingSeed.pesticide_btn_time = 0  # 아이템 초수 초기화
+                GrawingSeed.umbrella_btn_time = 0  # 아이템 초수 초기화
 
     # 게임 중단 확인 dialog
     def gotohome(self):
@@ -209,6 +263,9 @@ class GrawingSeed(QWidget):
             self.game_background_lb.setVisible(False)
             self.main_background_lb.setVisible(True)
             self.main_music_file = './music/main_music.mp3'
+
+            self.timer.stop()
+            self.time = 0
             
             # 게임을 중단하고 메인으로 돌아갔을 때 메인화면 음악 재생
             pygame.init()
@@ -224,11 +281,42 @@ class GrawingSeed(QWidget):
         if id(sender) == id(self.timer):
             if self.time % 10 == 0:
                 self.label_timer.setText(str(self.time // 10) + "시간")
+            # 7로 나누어 떨어질 때바다 벌레가 출몰
+            if self.time % 15 == 0:
+                self.bug(GrawingSeed.current_level)
 
     btn_timer_flag = 4
     water_btn_time = 0
     pesticide_btn_time = 0
     umbrella_btn_time = 0
+
+    def bug(self, level):
+        self.bug_timer = QTimer(self.game_background_lb)
+        self.bug_timer.setInterval(1000)
+        self.bug_timer.timeout.connect(self.bugtimeout)
+        self.bug_timer.start()
+        self.isBug = True
+
+        if level == 1:
+            self.btn_char.setStyleSheet("background-image : url(./images/first_stage_bug.png); border: 0px solid black;")
+        elif level == 2:
+            self.btn_char.setStyleSheet("background-image : url(./images/second_stage_bug.png); border: 0px solid black;")
+        elif level == 3:
+            self.btn_char.setStyleSheet("background-image : url(./images/third_stage_bug.png); border: 0px solid black;")
+        elif level == 4:
+            self.btn_char.setStyleSheet("background-image : url(./images/last_stage_bug.png); border: 0px solid black;")
+
+    def bugtimeout(self):
+        sender = self.sender()
+        self.bug_time += 1
+        if id(sender) == id(self.bug_timer):
+            print("벌레 출몰한 지 : " + str(self.bug_time) + "초")
+        if self.bug_time >= 10:
+            print("벌레에게 죽음-----")
+            self.bug_timer.stop()
+            self.bug_time = 0
+            self.game_background_lb.setVisible(False)
+            self.game_over_lb.setVisible(True)
 
     def printTime(self):
         if self.btn_timer_flag == 0:
@@ -241,7 +329,7 @@ class GrawingSeed(QWidget):
             GrawingSeed.umbrella_btn_time += 1
             print(f'우산 타이머 : {GrawingSeed.umbrella_btn_time}')
 
-        if GrawingSeed.water_btn_time == 5 or GrawingSeed.pesticide_btn_time == 5 or GrawingSeed.umbrella_btn_time == 5:
+        if GrawingSeed.water_btn_time == 2 or GrawingSeed.pesticide_btn_time == 2 or GrawingSeed.umbrella_btn_time == 2:
             GrawingSeed.water_btn_time = 0
             GrawingSeed.pesticide_btn_time = 0
             GrawingSeed.umbrella_btn_time = 0
@@ -253,10 +341,19 @@ class GrawingSeed(QWidget):
             self.btn_water.setStyleSheet("background-image : url(./images/watering.png); border: 0px solid black;")
             self.btn_pesticide.setStyleSheet("background-image : url(./images/pesticide.png); border: 0px solid black;")
             self.btn_umbrella.setStyleSheet("background-image : url(./images/umbrella.png); border: 0px solid black;")
-            self.btn_char.setStyleSheet("background-image : url(./images/first_stage.png); border: 0px solid black;")
+
+            if GrawingSeed.current_level == 1:
+                self.btn_char.setStyleSheet("background-image : url(./images/first_stage.png); border: 0px solid black;")
+            elif GrawingSeed.current_level == 2:
+                self.btn_char.setStyleSheet("background-image : url(./images/second_stage.png); border: 0px solid black;")
+            elif GrawingSeed.current_level == 3:
+                self.btn_char.setStyleSheet("background-image : url(./images/third_stage.png); border: 0px solid black;")
+            elif GrawingSeed.current_level == 4:
+                self.btn_char.setStyleSheet("background-image : url(./images/last_stage.png); border: 0px solid black;")
 
         self.game_over()
         self.game_over_check()
+        self.growing(GrawingSeed.current_level)
 
     def btn_char_clicked(self):
         # 버튼 눌렸을 때 각각 시간을 재는 타이머들 초기화
@@ -266,7 +363,7 @@ class GrawingSeed(QWidget):
         self.item_timer.setInterval(1000)
         self.item_timer.timeout.connect(self.printTime)
 
-        if self.which_btn == 1:
+        if self.which_btn == 1 and self.isBug == False:
             GrawingSeed.use_water += 1
             self.label_water.setText(str(GrawingSeed.use_water) + "번")
 
@@ -282,12 +379,20 @@ class GrawingSeed(QWidget):
                 self.btn_water.setStyleSheet("background-image : url(./images/watering_false.png); border: 0px solid black;")
                 self.btn_pesticide.setStyleSheet("background-image : url(./images/pesticide_false.png); border: 0px solid black;")
                 self.btn_umbrella.setStyleSheet("background-image : url(./images/umbrella_false.png); border: 0px solid black;")
-                self.btn_char.setStyleSheet("background-image : url(./images/first_stage_water.png); border: 0px solid black;")
-                
+
+                if GrawingSeed.current_level == 1:
+                    self.btn_char.setStyleSheet("background-image : url(./images/first_stage_water.png); border: 0px solid black;")
+                elif GrawingSeed.current_level == 2:
+                    self.btn_char.setStyleSheet("background-image : url(./images/second_stage_water.png); border: 0px solid black;")
+                elif GrawingSeed.current_level == 3:
+                    self.btn_char.setStyleSheet("background-image : url(./images/third_stage_water.png); border: 0px solid black;")
+                elif GrawingSeed.current_level == 4:
+                    self.btn_char.setStyleSheet("background-image : url(./images/last_stage_water.png); border: 0px solid black;")
+
             except:
                 print("물뿌리개 에러---")
 
-        elif self.which_btn == 2:
+        elif self.which_btn == 2 and self.isBug == True:
             GrawingSeed.use_pesticide += 1
             self.label_bug.setText(str(GrawingSeed.use_pesticide) + "번")
 
@@ -303,12 +408,27 @@ class GrawingSeed(QWidget):
                 self.btn_water.setStyleSheet("background-image : url(./images/watering_false.png); border: 0px solid black;")
                 self.btn_pesticide.setStyleSheet("background-image : url(./images/pesticide_false.png); border: 0px solid black;")
                 self.btn_umbrella.setStyleSheet("background-image : url(./images/umbrella_false.png); border: 0px solid black;")
-                self.btn_char.setStyleSheet("background-image : url(./images/first_stage_pesticide.png); border: 0px solid black;")
-                
+
+                self.bug_timer.stop()
+                self.bug_time = 0
+
+                self.bug_success += 1
+
+                if GrawingSeed.current_level == 1:
+                    self.btn_char.setStyleSheet("background-image : url(./images/first_stage_pesticide.png); border: 0px solid black;")
+                elif GrawingSeed.current_level == 2:
+                    self.btn_char.setStyleSheet("background-image : url(./images/second_stage_pesticide.png); border: 0px solid black;")
+                elif GrawingSeed.current_level == 3:
+                    self.btn_char.setStyleSheet("background-image : url(./images/third_stage_pesticide.png); border: 0px solid black;")
+                elif GrawingSeed.current_level == 4:
+                    self.btn_char.setStyleSheet("background-image : url(./images/last_stage_pesticide.png); border: 0px solid black;")
+
+                self.isBug = False
+
             except:
                 print("살충제 에러---")
                 
-        elif self.which_btn == 3:
+        elif self.which_btn == 3 and self.isBug == False:
             GrawingSeed.use_umbrella += 1
             self.label_clean.setText(str(GrawingSeed.use_umbrella) + "번")
 
@@ -324,7 +444,15 @@ class GrawingSeed(QWidget):
                 self.btn_water.setStyleSheet("background-image : url(./images/watering_false.png); border: 0px solid black;")
                 self.btn_pesticide.setStyleSheet("background-image : url(./images/pesticide_false.png); border: 0px solid black;")
                 self.btn_umbrella.setStyleSheet("background-image : url(./images/umbrella_false.png); border: 0px solid black;")
-                self.btn_char.setStyleSheet("background-image : url(./images/first_stage_umbrella.png); border: 0px solid black;")
+
+                if GrawingSeed.current_level == 1:
+                    self.btn_char.setStyleSheet("background-image : url(./images/first_stage_umbrella.png); border: 0px solid black;")
+                elif GrawingSeed.current_level == 2:
+                    self.btn_char.setStyleSheet("background-image : url(./images/second_stage_umbrella.png); border: 0px solid black;")
+                elif GrawingSeed.current_level == 3:
+                    self.btn_char.setStyleSheet("background-image : url(./images/third_stage_umbrella.png); border: 0px solid black;")
+                elif GrawingSeed.current_level == 4:
+                    self.btn_char.setStyleSheet("background-image : url(./images/last_stage_umbrella.png); border: 0px solid black;")
 
             except:
                 print("우산 에러---")
@@ -391,18 +519,27 @@ class GrawingSeed(QWidget):
         self.rule_background_lb.setVisible(False)
 
     def none_item(self):
-        reply = QMessageBox.question(self, '아이템 없음', '아이템을 선택해주세요', QMessageBox.Yes | QMessageBox.No,
-                                     QMessageBox.No)
+        reply = QMessageBox.question(self, '아이템 없음', '아이템을 선택해주세요', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             return
         else:
             self.game_background_lb.setVisible(False)
             self.main_background_lb.setVisible(True)
+            self.timer.stop()
+            self.time = 0
+
+            # 게임을 중단하고 메인으로 돌아갔을 때 메인화면 음악 재생
+            pygame.init()
+            pygame.mixer.init()
+            pygame.mixer.music.load(self.main_music_file)
+            pygame.mixer.music.play(-1)
 
     def closeEvent(self, event):
         reply = QMessageBox.question(self, '게임 종료', '정말 게임을 종료하시겠습니까?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             event.accept()
+            self.timer.stop()
+            self.time = 0
         else:
             event.ignore()
 
