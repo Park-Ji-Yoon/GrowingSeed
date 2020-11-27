@@ -3,7 +3,7 @@ import threading
 import random
 
 from PySide2 import QtCore, QtGui
-from PySide2.QtCore import QTimer
+from PySide2.QtCore import QTimer, Qt
 from PySide2.QtGui import QFont, QIcon
 from PySide2.QtWidgets import *
 import pygame
@@ -30,6 +30,8 @@ class GrawingSeed(QWidget):
 
         self.bug_success = 0
         self.dust_success = 0
+
+        self.change_dust = True
 
     # 화면 디자인 요소
     def start_growing_seed(self):
@@ -147,11 +149,61 @@ class GrawingSeed(QWidget):
 
     # 씨앗씨 키우기 성공 화면
     def game_success(self):
-        # 배경 사진 설정
+        # 점수 계산 함수 호출
+        score_result = self.mark_score()
+        
+        # 보너스 점수 초기화
+        bonus = 0
+
+        # 별 갯수 초기화
+        self.star_count = 0
+
         self.game_success_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
-        game_background_4 = QtGui.QPixmap("./images/success.png")  # 사진 넣을 pixmap
-        self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
-        self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
+
+        # 점수 라벨
+        self.score_label = QLabel("0점", self.game_success_lb)
+        self.score_label.setGeometry(100, 180, 700, 300)
+        self.score_label.setFont(QFont('JalnanOTF', 60))
+        self.score_label.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignCenter)
+
+        # 배경 사진 설정
+        if score_result <= 200:
+            game_background_4 = QtGui.QPixmap("./images/one_star.png")  # 사진 넣을 pixmap
+            self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+            self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
+            bonus = 20
+            self.star_count = 1
+            self.score_label.setText(str(score_result + bonus) + "점")
+        elif score_result <= 400:
+            game_background_4 = QtGui.QPixmap("./images/two_stars.png.png")  # 사진 넣을 pixmap
+            self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+            self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
+            bonus = 50
+            self.star_count = 2
+            self.score_label.setText(str(score_result + bonus) + "점")
+        elif score_result <= 600:
+            game_background_4 = QtGui.QPixmap("./images/three_stars.png")  # 사진 넣을 pixmap
+            self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+            self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
+            bonus = 90
+            self.star_count = 3
+            self.score_label.setText(str(score_result + bonus) + "점")
+        elif score_result <= 800:
+            game_background_4 = QtGui.QPixmap("./images/four_stars.png")  # 사진 넣을 pixmap
+            self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+            self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
+            bonus = 140
+            self.star_count = 4
+            self.score_label.setText(str(score_result + bonus) + "점")
+        elif score_result <= 1000:
+            game_background_4 = QtGui.QPixmap("./images/five_stars.png")  # 사진 넣을 pixmap
+            self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+            self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
+            bonus = 200
+            self.star_count = 5
+            self.score_label.setText(str(score_result + bonus) + "점")
+        else:
+            print("에러 : 나올 수 없는 점수 나옴")
 
         # 물 준 횟수, 살충제 사용 횟수, 우산 사용 횟수 0으로 초기화
         # 아이템 사용 횟수 0으로 초기화
@@ -168,7 +220,7 @@ class GrawingSeed(QWidget):
 
         self.record_btn = QPushButton("", self.game_success_lb)
         self.record_btn.setGeometry(430, 517, 240, 80)
-        # self.record_btn.clicked.connect(self.btn_go_main)
+        self.record_btn.clicked.connect(self.write_game_record)
         opacity_effect2 = QGraphicsOpacityEffect(self.record_btn)
         opacity_effect2.setOpacity(0)
         self.record_btn.setGraphicsEffect(opacity_effect2)
@@ -177,9 +229,17 @@ class GrawingSeed(QWidget):
         self.game_over_lb.setVisible(False)
         self.game_success_lb.setVisible(True)
 
+        # 게임 종료시 모든 타이머 종료
+        self.timer.stop()
+        self.dust_timer.stop()
+        self.bug_timer.stop()
+        self.item_timer.stop()
+
     # 점수를 계산하는 함수
     def mark_score(self):
-        pass
+        self.score = self.use_water * 8 +  self.bug_success * 13 + self.dust_success * 13 + (120 - self.time) * 10
+        print(f'**점수** : " + {self.score}')
+        return self.score
     
     # 게임 엔진
     def game_engine(self):
@@ -256,7 +316,7 @@ class GrawingSeed(QWidget):
         # 환경 오염 발생 준비
         self.dust_times = []  # 환경 오염이 발생할 시간 담을 list
         self.dust_count = random.randint(2, 5)  # 환경 오염 발생 횟수
-        rand_num = random.randint(1, 50)
+        rand_num = random.randrange(1, 50, 7)
         # 겹치지 않게 self.dust_count만큼 랜덤 숫자를 뽑음
         for i in range(self.dust_count):
             while rand_num in self.dust_times:
@@ -382,16 +442,33 @@ class GrawingSeed(QWidget):
         self.isDust = True
 
         if level == 1:
-            self.btn_char.setStyleSheet(
-                "background-image : url(./images/first_stage_dust.png); border: 0px solid black;")
+            if self.change_dust == True:
+                self.btn_char.setStyleSheet("background-image : url(./images/first_stage_dust.png); border: 0px solid black;")
+                self.change_dust = False
+            else:
+                self.btn_char.setStyleSheet("background-image : url(./images/first_stage_acid.png); border: 0px solid black;")
+                self.change_dust = True
         elif level == 2:
-            self.btn_char.setStyleSheet(
-                "background-image : url(./images/second_stage_dust.png); border: 0px solid black;")
+            if self.change_dust == True:
+                self.btn_char.setStyleSheet("background-image : url(./images/second_stage_dust.png); border: 0px solid black;")
+                self.change_dust = False
+            else:
+                self.btn_char.setStyleSheet("background-image : url(./images/second_stage_acid.png); border: 0px solid black;")
+                self.change_dust = True
         elif level == 3:
-            self.btn_char.setStyleSheet(
-                "background-image : url(./images/third_stage_dust.png); border: 0px solid black;")
+            if self.change_dust == True:
+                self.btn_char.setStyleSheet("background-image : url(./images/third_stage_dust.png); border: 0px solid black;")
+                self.change_dust = False
+            else:
+                self.btn_char.setStyleSheet("background-image : url(./images/third_stage_acid.png); border: 0px solid black;")
+                self.change_dust = True
         elif level == 4:
-            self.btn_char.setStyleSheet("background-image : url(./images/last_stage_dust.png); border: 0px solid black;")
+            if self.change_dust == True:
+                self.btn_char.setStyleSheet("background-image : url(./images/last_stage_dust.png); border: 0px solid black;")
+                self.change_dust = False
+            else:
+                self.btn_char.setStyleSheet("background-image : url(./images/last_stage_acid.png); border: 0px solid black;")
+                self.change_dust = True
 
     def dusttimeout(self):
         sender = self.sender()
@@ -416,6 +493,7 @@ class GrawingSeed(QWidget):
         elif self.btn_timer_flag == 2:
             GrawingSeed.umbrella_btn_time += 1
             print(f'우산 타이머 : {GrawingSeed.umbrella_btn_time}')
+            self.dust_timer.stop()
 
         if GrawingSeed.water_btn_time == 2 or GrawingSeed.pesticide_btn_time == 2 or GrawingSeed.umbrella_btn_time == 2:
             GrawingSeed.water_btn_time = 0
@@ -614,9 +692,19 @@ class GrawingSeed(QWidget):
         self.main_background_lb.setVisible(False)
         self.rule_background_lb.setVisible(True)
 
-    # 게임 기록 
+    # 게임 기록 보기
     def show_game_record(self):
         pass
+    
+    # 게임 기록 하기
+    def write_game_record(self):
+        nickname, ok = QInputDialog.getText(self, '게임 기록', '닉네임 or 이름을 입력하세요')
+        if ok:
+            file = open('./record/score.txt', 'a', encoding='utf-8')
+            file.write(nickname + '\t' + str(self.score_label.text()) + '님\t' + str(self.star_count) + '개\n')
+        else:
+            pass
+        file.close()
 
     def btn_enabled(self):
         global count
@@ -633,7 +721,6 @@ class GrawingSeed(QWidget):
     # 뒤로가기 버튼
     def go_to_home(self):
         self.main_background_lb.setVisible(True)
-        self.rule_background_lb.setVisible(False)
         self.game_success_lb.setVisible(False)
 
         self.dust_times = []

@@ -16,8 +16,8 @@ def initGame():
     game_pad = pygame.display.set_mode((PAD_WIDTH, PAD_HEIGHT))
     pygame.display.set_caption("씨앗씨 키우기")
     main_background = pygame.image.load("imsi_1.png")
-    game_start_btn = pygame.image.load("game_start_btn.png")
-    game_rule_btn = pygame.image.load("game_rule_btn.png")
+    game_start_btn = pygame.image.load("images/game_start_btn.png")
+    game_rule_btn = pygame.image.load("images/game_rule_btn.png")
     clock = pygame.time.Clock()
 
 def runGame():
