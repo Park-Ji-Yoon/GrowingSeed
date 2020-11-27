@@ -4,7 +4,7 @@ import random
 
 from PySide2 import QtCore, QtGui
 from PySide2.QtCore import QTimer, Qt
-from PySide2.QtGui import QFont, QIcon
+from PySide2.QtGui import QFont, QIcon, QPixmap
 from PySide2.QtWidgets import *
 import pygame
 
@@ -700,11 +700,31 @@ class GrawingSeed(QWidget):
     def write_game_record(self):
         nickname, ok = QInputDialog.getText(self, '게임 기록', '닉네임 or 이름을 입력하세요')
         if ok:
-            file = open('./record/score.txt', 'a', encoding='utf-8')
-            file.write(nickname + '\t' + str(self.score_label.text()) + '님\t' + str(self.star_count) + '개\n')
+            # 비속어 있는지 확인하기
+            slang_file = open('./text/slang.txt', 'r', encoding='utf-8')
+            slang_data = []
+            while True:
+                line = slang_file.readline()
+                if not line:
+                    break
+                slang_data.append(line)
+            slang_file.close()
+            for slang_word in slang_data:
+                slang_word = slang_word.split(",")
+            if nickname not in slang_word:
+                score_file = open('text/score.txt', 'a', encoding='utf-8')
+                score_file.write(nickname + '\t' + str(self.score_label.text()) + '님\t' + str(self.star_count) + '개\n')
+                score_file.close()
+            else:
+                q = QMessageBox(QMessageBox.Warning, "비속어 사용 감지", "비속어는 사용할 수 없습니다")
+                q.setStandardButtons(QMessageBox.Ok);
+                i = QIcon()
+                i.addPixmap(QPixmap("./images/warn.png"), QIcon.Normal)
+                q.setWindowIcon(i)
+                q.exec_()
         else:
             pass
-        file.close()
+        slang_file.close()
 
     def btn_enabled(self):
         global count
