@@ -4,13 +4,12 @@ import threading
 import random
 
 from PySide2 import QtCore, QtGui
-from PySide2.QtCore import QTimer, Qt, QRect
+from PySide2.QtCore import QTimer, Qt
 from PySide2.QtGui import QFont, QIcon, QPixmap
 from PySide2.QtWidgets import *
 import pygame
 import pandas as pd
 from datetime import datetime
-
 
 # 게임 클래스
 class GrawingSeed(QWidget):
@@ -38,6 +37,8 @@ class GrawingSeed(QWidget):
 
         self.change_dust = True
 
+        self.remove_weed = 0
+
     # 화면 디자인 요소
     def start_growing_seed(self):
         # 메인 노래 설정
@@ -54,7 +55,7 @@ class GrawingSeed(QWidget):
         self.main_background_lb.setPixmap(main_background)  # 메인 배경 사진의 pixmap설정
 
         self.record_background_lb = QLabel()  # 메인 배경 사진을 넣을 라벨
-        self.rule_background_lb = QLabel()  # 메인 배경 사진을 넣을 라벨
+        self.rule_background_lb = QLabel()  # 메인 배경 사진을 넣을 라벨ㅈ
         self.record_high_background_lb = QLabel()
         self.record_low_background_lb = QLabel()
         self.record_new_background_lb = QLabel()
@@ -168,6 +169,16 @@ class GrawingSeed(QWidget):
 
         # 별 갯수 초기화
         self.star_count = 0
+        
+        # 게임 변수 초기화
+        self.timer.stop()
+        self.time = 0
+        self.bug_timer.stop()
+        self.bug_time = 0
+        self.dust_timer.stop()
+        self.dust_time = 0
+        self.weed_count = 0
+        self.remove_weed = 0
 
         self.game_success_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
 
@@ -248,7 +259,7 @@ class GrawingSeed(QWidget):
 
     # 점수를 계산하는 함수
     def mark_score(self):
-        self.score = self.use_water * 8 + self.bug_success * 13 + self.dust_success * 13 + (120 - self.time) * 10
+        self.score = self.use_water * 8 + self.bug_success * 13 + self.dust_success * 13 + (120 - self.time) * 8 + self.remove_weed * 10
         print(f'**점수** : " + {self.score}')
         return self.score
 
@@ -337,6 +348,68 @@ class GrawingSeed(QWidget):
         self.dust_times.sort()
         print("정렬 후 : " + str(self.dust_times))  # 디버깅용
 
+        self.weed_count = 0
+
+        # 잡초 버튼 1
+        self.weed1 = QPushButton("", self.game_background_lb)
+        self.weed1.setGeometry(random.randint(50, 200), random.randint(70, 600), 48, 48)
+        self.weed1.clicked.connect(self.click_weed)
+        self.weed1.setVisible(False)
+
+        # 잡초 버튼 2
+        self.weed2 = QPushButton("", self.game_background_lb)
+        self.weed2.setGeometry(random.randint(550, 700), random.randint(70, 600), 48, 48)
+        self.weed2.clicked.connect(self.click_weed)
+        self.weed2.setVisible(False)
+
+        # 잡초 버튼 3
+        self.weed3 = QPushButton("", self.game_background_lb)
+        self.weed3.setGeometry(random.randint(50, 200), random.randint(70, 600), 48, 48)
+        self.weed3.clicked.connect(self.click_weed)
+        self.weed3.setVisible(False)
+
+        # 잡초 버튼 4
+        self.weed4 = QPushButton("", self.game_background_lb)
+        self.weed4.setGeometry(random.randint(550, 700), random.randint(70, 600), 48, 48)
+        self.weed4.clicked.connect(self.click_weed)
+        self.weed4.setVisible(False)
+
+        # 잡초 버튼 5
+        self.weed5 = QPushButton("", self.game_background_lb)
+        self.weed5.setGeometry(random.randint(50, 200), random.randint(70, 600), 48, 48)
+        self.weed5.clicked.connect(self.click_weed)
+        self.weed5.setVisible(False)
+
+        # 잡초 버튼 6
+        self.weed6 = QPushButton("", self.game_background_lb)
+        self.weed6.setGeometry(random.randint(550, 700), random.randint(70, 600), 48, 48)
+        self.weed6.clicked.connect(self.click_weed)
+        self.weed6.setVisible(False)
+
+        # 잡초 버튼 7
+        self.weed7 = QPushButton("", self.game_background_lb)
+        self.weed7.setGeometry(random.randint(50, 200), random.randint(70, 600), 48, 48)
+        self.weed7.clicked.connect(self.click_weed)
+        self.weed7.setVisible(False)
+
+        # 잡초 버튼 8
+        self.weed8 = QPushButton("", self.game_background_lb)
+        self.weed8.setGeometry(random.randint(550, 700), random.randint(70, 600), 48, 48)
+        self.weed8.clicked.connect(self.click_weed)
+        self.weed8.setVisible(False)
+
+        # 잡초 버튼 9
+        self.weed9 = QPushButton("", self.game_background_lb)
+        self.weed9.setGeometry(random.randint(50, 200), random.randint(70, 600), 48, 48)
+        self.weed9.clicked.connect(self.click_weed)
+        self.weed9.setVisible(False)
+
+        # 잡초 버튼 10
+        self.weed10 = QPushButton("", self.game_background_lb)
+        self.weed10.setGeometry(random.randint(550, 700), random.randint(70, 600), 48, 48)
+        self.weed10.clicked.connect(self.click_weed)
+        self.weed10.setVisible(False)
+
     # 게임 오버되었는지 확인하는 함수
     def game_over_check(self):
         # 한 아이템당 사용 횟수가 10 이상이면 게임 오버
@@ -386,6 +459,15 @@ class GrawingSeed(QWidget):
             self.timer.stop()
             self.time = 0
 
+            self.bug_timer.stop()
+            self.bug_time = 0
+
+            self.dust_timer.stop()
+            self.dust_time = 0
+
+            self.weed_count = 0
+            self.remove_weed = 0
+
             # 게임을 중단하고 메인으로 돌아갔을 때 메인화면 음악 재생
             pygame.init()
             pygame.mixer.init()
@@ -407,6 +489,46 @@ class GrawingSeed(QWidget):
             for i in self.dust_times:
                 if i == self.time:
                     self.dust(GrawingSeed.current_level)
+            # 잡초 버튼 생성
+            # (랜덤으로 위치값을 줌)
+            if self.time % 10 == 0:
+                self.weed_count += 1
+                if self.weed_count == 1:
+                    self.weed1.setVisible(True)
+                    self.weed1.setStyleSheet("background-image : url(./images/weed_ver1.png); border: 0px solid black;")
+                    self.weed2.setVisible(True)
+                    self.weed2.setStyleSheet("background-image : url(./images/weed_ver2.png); border: 0px solid black;")
+                    self.weed_count += 1
+                elif self.weed_count == 2:
+                    self.weed3.setVisible(True)
+                    self.weed3.setStyleSheet("background-image : url(./images/weed_ver3.png); border: 0px solid black;")
+                    self.weed4.setVisible(True)
+                    self.weed4.setStyleSheet("background-image : url(./images/weed_ver1.png); border: 0px solid black;")
+                    self.weed_count += 1
+                elif self.weed_count == 3:
+                    self.weed5.setVisible(True)
+                    self.weed5.setStyleSheet("background-image : url(./images/weed_ver2.png); border: 0px solid black;")
+                    self.weed6.setVisible(True)
+                    self.weed6.setStyleSheet("background-image : url(./images/weed_ver3.png); border: 0px solid black;")
+                    self.weed_count += 1
+                elif self.weed_count == 4:
+                    self.weed7.setVisible(True)
+                    self.weed7.setStyleSheet("background-image : url(./images/weed_ver1.png); border: 0px solid black;")
+                    self.weed8.setVisible(True)
+                    self.weed8.setStyleSheet("background-image : url(./images/weed_ver2.png); border: 0px solid black;")
+                    self.weed_count += 1
+                elif self.weed_count == 5:
+                    self.weed9.setVisible(True)
+                    self.weed9.setStyleSheet("background-image : url(./images/weed_ver3.png); border: 0px solid black;")
+                    self.weed10.setVisible(True)
+                    self.weed10.setStyleSheet("background-image : url(./images/weed_ver1.png); border: 0px solid black;")
+                    self.weed_count = 0
+    
+    # 잡초 클릭 이벤트
+    def click_weed(self):
+        send_weed_btn = self.sender()
+        self.remove_weed += 1
+        send_weed_btn.setVisible(False)
 
     btn_timer_flag = 4
     water_btn_time = 0
@@ -958,19 +1080,6 @@ class GrawingSeed(QWidget):
             for slang_word in slang_data:
                 slang_word = slang_word.split(",")
             if nickname not in slang_word:
-                # df = pd.read_csv("./text/score.csv")
-                # # Add a new row
-                # df = df.append(
-                #     {
-                #         "time": nickname,
-                #         "nickname": self.score_label.text(),
-                #         "score": self.star_count
-                #     },
-                #     ignore_index=True)
-                # # Sort the table
-                # # df = df.sort_values(by=['time'], ascending=True)
-                # # Print the table
-                # print(df)
                 today = datetime.today()
                 year = today.year
                 month = today.month
