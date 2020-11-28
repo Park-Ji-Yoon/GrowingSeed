@@ -1,43 +1,20 @@
-import pygame
-import sys
-from time import sleep
+# import csv
+#
+# import pandas as pd
+#
+# f = open('./text/write.csv', 'a', newline='', encoding="utf-8")
+# wr = csv.writer(f)
+# wr.writerow([1, '림코딩', '부산'])
+# wr.writerow([2, '김갑환', '서울'])
+#
+# f.close()
 
-
-PAD_WIDTH = 800
-PAD_HEIGHT = 650
-
-def drawObject(object, x, y):
-    global gamePad
-    gamePad.blit(object, (x, y))
-
-def initGame():
-    global game_pad, clock, main_background, game_start_btn, game_rule_btn
-    pygame.init()
-    game_pad = pygame.display.set_mode((PAD_WIDTH, PAD_HEIGHT))
-    pygame.display.set_caption("씨앗씨 키우기")
-    main_background = pygame.image.load("imsi_1.png")
-    game_start_btn = pygame.image.load("images/game_start_btn.png")
-    game_rule_btn = pygame.image.load("images/game_rule_btn.png")
-    clock = pygame.time.Clock()
-
-def runGame():
-    global game_pad, clock, main_background, game_start_btn, game_rule_btn
-
-    onGame = False
-    while not onGame:
-        for event in pygame.event.get():
-            if event.type in [pygame.QUIT]:
-                pygame.quit()
-                sys.exit()
-
-        drawObject(main_background, 0, 0)
-        drawObject(game_start_btn, 430, 400)
-        drawObject(game_rule_btn, 430, 500)
-
-        pygame.display.update()
-
-        clock.tick(60)
-
-    pygame.quit()
-
-initGame()
+from datetime import datetime
+today = datetime.today()
+year = today.year
+month = today.month
+day = today.day
+hour = today.hour
+minute = today.minute
+current_time = str(year)[-2:] + str(month) + str(day) + str(hour) + str(minute)
+print(current_time)

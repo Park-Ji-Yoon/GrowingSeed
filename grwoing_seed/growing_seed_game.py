@@ -1,19 +1,24 @@
+import csv
 import sys
 import threading
 import random
 
 from PySide2 import QtCore, QtGui
-from PySide2.QtCore import QTimer, Qt
+from PySide2.QtCore import QTimer, Qt, QRect
 from PySide2.QtGui import QFont, QIcon, QPixmap
 from PySide2.QtWidgets import *
 import pygame
+import pandas as pd
+from datetime import datetime
 
+
+# 게임 클래스
 class GrawingSeed(QWidget):
-    use_water = 0
-    use_pesticide = 0
-    use_umbrella = 0
+    use_water = 0  # 물뿌리개 사용 횟수
+    use_pesticide = 0  # 살충제 사용 횟수
+    use_umbrella = 0  # 우산 사용 횟수
 
-    current_level = 0
+    current_level = 0  # 현재 단계 (1~4)
 
     # 생성자
     def __init__(self):
@@ -47,6 +52,12 @@ class GrawingSeed(QWidget):
         main_background = QtGui.QPixmap("./images/main.png")  # 사진 넣을 pixmap
         self.main_background_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
         self.main_background_lb.setPixmap(main_background)  # 메인 배경 사진의 pixmap설정
+
+        self.record_background_lb = QLabel()  # 메인 배경 사진을 넣을 라벨
+        self.rule_background_lb = QLabel()  # 메인 배경 사진을 넣을 라벨
+        self.record_high_background_lb = QLabel()
+        self.record_low_background_lb = QLabel()
+        self.record_new_background_lb = QLabel()
 
         # 아이콘 설정
         self.setWindowIcon(QIcon('./images/icon.png'))
@@ -151,7 +162,7 @@ class GrawingSeed(QWidget):
     def game_success(self):
         # 점수 계산 함수 호출
         score_result = self.mark_score()
-        
+
         # 보너스 점수 초기화
         bonus = 0
 
@@ -195,7 +206,7 @@ class GrawingSeed(QWidget):
             bonus = 140
             self.star_count = 4
             self.score_label.setText(str(score_result + bonus) + "점")
-        elif score_result <= 1000:
+        elif score_result <= 2000:
             game_background_4 = QtGui.QPixmap("./images/five_stars.png")  # 사진 넣을 pixmap
             self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
             self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
@@ -237,10 +248,10 @@ class GrawingSeed(QWidget):
 
     # 점수를 계산하는 함수
     def mark_score(self):
-        self.score = self.use_water * 8 +  self.bug_success * 13 + self.dust_success * 13 + (120 - self.time) * 10
+        self.score = self.use_water * 8 + self.bug_success * 13 + self.dust_success * 13 + (120 - self.time) * 10
         print(f'**점수** : " + {self.score}')
         return self.score
-    
+
     # 게임 엔진
     def game_engine(self):
         self.music_file = './music/background_music_py.mp3'
@@ -345,18 +356,18 @@ class GrawingSeed(QWidget):
                 GrawingSeed.current_level = 2
 
         elif level == 2:
-            if GrawingSeed.use_water >= 4 and self.bug_success >= 2 and self.dust_success >= 0:
+            if GrawingSeed.use_water >= 4 and self.bug_success >= 1 and self.dust_success >= 0:
                 self.btn_char.setStyleSheet(
                     "background-image : url(./images/third_stage.png); border: 0px solid black;")
                 GrawingSeed.current_level = 3
 
         elif level == 3:
-            if GrawingSeed.use_water >= 6 and self.bug_success >= 3 and self.dust_success >= 0:
+            if GrawingSeed.use_water >= 6 and self.bug_success >= 1 and self.dust_success >= 0:
                 self.btn_char.setStyleSheet("background-image : url(./images/last_stage.png); border: 0px solid black;")
                 GrawingSeed.current_level = 4
 
         elif level == 4:
-            if GrawingSeed.use_water >= 8 and self.bug_success >= 4 and self.dust_success >= 1:
+            if GrawingSeed.use_water >= 8 and self.bug_success >= 1 and self.dust_success >= 1:
                 self.game_success()
 
                 GrawingSeed.water_btn_time = 0  # 아이템 초수 초기화
@@ -443,31 +454,39 @@ class GrawingSeed(QWidget):
 
         if level == 1:
             if self.change_dust == True:
-                self.btn_char.setStyleSheet("background-image : url(./images/first_stage_dust.png); border: 0px solid black;")
+                self.btn_char.setStyleSheet(
+                    "background-image : url(./images/first_stage_dust.png); border: 0px solid black;")
                 self.change_dust = False
             else:
-                self.btn_char.setStyleSheet("background-image : url(./images/first_stage_acid.png); border: 0px solid black;")
+                self.btn_char.setStyleSheet(
+                    "background-image : url(./images/first_stage_acid.png); border: 0px solid black;")
                 self.change_dust = True
         elif level == 2:
             if self.change_dust == True:
-                self.btn_char.setStyleSheet("background-image : url(./images/second_stage_dust.png); border: 0px solid black;")
+                self.btn_char.setStyleSheet(
+                    "background-image : url(./images/second_stage_dust.png); border: 0px solid black;")
                 self.change_dust = False
             else:
-                self.btn_char.setStyleSheet("background-image : url(./images/second_stage_acid.png); border: 0px solid black;")
+                self.btn_char.setStyleSheet(
+                    "background-image : url(./images/second_stage_acid.png); border: 0px solid black;")
                 self.change_dust = True
         elif level == 3:
             if self.change_dust == True:
-                self.btn_char.setStyleSheet("background-image : url(./images/third_stage_dust.png); border: 0px solid black;")
+                self.btn_char.setStyleSheet(
+                    "background-image : url(./images/third_stage_dust.png); border: 0px solid black;")
                 self.change_dust = False
             else:
-                self.btn_char.setStyleSheet("background-image : url(./images/third_stage_acid.png); border: 0px solid black;")
+                self.btn_char.setStyleSheet(
+                    "background-image : url(./images/third_stage_acid.png); border: 0px solid black;")
                 self.change_dust = True
         elif level == 4:
             if self.change_dust == True:
-                self.btn_char.setStyleSheet("background-image : url(./images/last_stage_dust.png); border: 0px solid black;")
+                self.btn_char.setStyleSheet(
+                    "background-image : url(./images/last_stage_dust.png); border: 0px solid black;")
                 self.change_dust = False
             else:
-                self.btn_char.setStyleSheet("background-image : url(./images/last_stage_acid.png); border: 0px solid black;")
+                self.btn_char.setStyleSheet(
+                    "background-image : url(./images/last_stage_acid.png); border: 0px solid black;")
                 self.change_dust = True
 
     def dusttimeout(self):
@@ -495,7 +514,7 @@ class GrawingSeed(QWidget):
             print(f'우산 타이머 : {GrawingSeed.umbrella_btn_time}')
             self.dust_timer.stop()
 
-        if GrawingSeed.water_btn_time == 2 or GrawingSeed.pesticide_btn_time == 2 or GrawingSeed.umbrella_btn_time == 2:
+        if GrawingSeed.water_btn_time == 1 or GrawingSeed.pesticide_btn_time == 1 or GrawingSeed.umbrella_btn_time == 1:
             GrawingSeed.water_btn_time = 0
             GrawingSeed.pesticide_btn_time = 0
             GrawingSeed.umbrella_btn_time = 0
@@ -694,8 +713,235 @@ class GrawingSeed(QWidget):
 
     # 게임 기록 보기
     def show_game_record(self):
-        pass
-    
+        self.record_background_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
+        record_background_1 = QtGui.QPixmap("./images/record_basic.png")  # 사진 넣을 pixmap
+        self.record_background_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+        self.record_background_lb.setPixmap(record_background_1)  # 메인 배경 사진의 pixmap설정
+
+        # 뒤로가기 버튼
+        btn_return = QPushButton("", self.record_background_lb)
+        btn_return.setGeometry(75, 55, 60, 60)
+        btn_return.clicked.connect(self.go_to_home)
+        opacity_effect = QGraphicsOpacityEffect(btn_return)
+        opacity_effect.setOpacity(0)
+        btn_return.setGraphicsEffect(opacity_effect)
+
+        # 높은 점수 정렬 버튼
+        btn_high_score = QPushButton("", self.record_background_lb)
+        btn_high_score.setGeometry(85, 147, 180, 55)
+        btn_high_score.clicked.connect(self.high_score)
+        opacity_effect = QGraphicsOpacityEffect(btn_high_score)
+        opacity_effect.setOpacity(0)
+        btn_high_score.setGraphicsEffect(opacity_effect)
+
+        # 낮은 점수 정렬 버튼
+        btn_low_score = QPushButton("", self.record_background_lb)
+        btn_low_score.setGeometry(311, 147, 180, 55)
+        btn_low_score.clicked.connect(self.low_score)
+        opacity_effect = QGraphicsOpacityEffect(btn_low_score)
+        opacity_effect.setOpacity(0)
+        btn_low_score.setGraphicsEffect(opacity_effect)
+
+        # 최신순 점수 정렬 버튼
+        btn_new_score = QPushButton("", self.record_background_lb)
+        btn_new_score.setGeometry(537, 147, 180, 55)
+        btn_new_score.clicked.connect(self.new_score)
+        opacity_effect = QGraphicsOpacityEffect(btn_new_score)
+        opacity_effect.setOpacity(0)
+        btn_new_score.setGraphicsEffect(opacity_effect)
+
+        self.main_background_lb.setVisible(False)
+        self.record_background_lb.setVisible(True)
+
+    def high_score(self):
+        print("high score")
+
+        self.record_background_lb.setVisible(False)
+        self.record_low_background_lb.setVisible(False)
+        self.record_new_background_lb.setVisible(False)
+
+        self.record_high_background_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
+        record_background_1 = QtGui.QPixmap("./images/record_high.png")  # 사진 넣을 pixmap
+        self.record_high_background_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+        self.record_high_background_lb.setPixmap(record_background_1)  # 메인 배경 사진의 pixmap설정
+
+        # 높은 점수 정렬 버튼
+        btn_high_score = QPushButton("dd", self.record_high_background_lb)
+        btn_high_score.setGeometry(85, 147, 180, 55)
+        btn_high_score.clicked.connect(self.high_score)
+        opacity_effect = QGraphicsOpacityEffect(btn_high_score)
+        opacity_effect.setOpacity(0)
+        btn_high_score.setGraphicsEffect(opacity_effect)
+
+        # 낮은 점수 정렬 버튼
+        btn_low_score = QPushButton("dd", self.record_high_background_lb)
+        btn_low_score.setGeometry(311, 147, 180, 55)
+        btn_low_score.clicked.connect(self.low_score)
+        opacity_effect = QGraphicsOpacityEffect(btn_low_score)
+        opacity_effect.setOpacity(0)
+        btn_low_score.setGraphicsEffect(opacity_effect)
+
+        # 최신순 점수 정렬 버튼
+        btn_new_score = QPushButton("dd", self.record_high_background_lb)
+        btn_new_score.setGeometry(537, 147, 180, 55)
+        btn_new_score.clicked.connect(self.new_score)
+        opacity_effect = QGraphicsOpacityEffect(btn_new_score)
+        opacity_effect.setOpacity(0)
+        btn_new_score.setGraphicsEffect(opacity_effect)
+
+        # 뒤로가기 버튼
+        btn_return = QPushButton("", self.record_high_background_lb)
+        btn_return.setGeometry(75, 55, 60, 60)
+        btn_return.clicked.connect(self.go_to_home)
+        opacity_effect = QGraphicsOpacityEffect(btn_return)
+        opacity_effect.setOpacity(0)
+        btn_return.setGraphicsEffect(opacity_effect)
+
+        # csv 파일
+        df = pd.read_csv("./text/score.csv")  # csv파일 읽어보기
+        df = df.sort_values(by=['score'], ascending=False)  # 점수 높은 순으로 정렬
+        print(df)  # 디버깅용 출력
+
+        # 높은 점수 순 scrollArea 선언
+        high_scrollArea = QScrollArea(self.record_high_background_lb)
+        high_scrollArea.setGeometry(82, 215, 640, 400)
+        high_scrollArea.setStyleSheet("background-color: #ffe22f; color:#022c00;")
+
+        # 정렬된 df를 string형으로 형변환 후 QLabel에 setText해줌
+        high_scores = QLabel(str(df))
+        high_scores.setGeometry(10, 5, 620, 390)
+        high_scores.setAlignment(Qt.AlignHCenter)
+        high_scores.setFont(QFont('JalnanOTF', 20))
+        high_scrollArea.setWidget(high_scores)
+
+        self.record_high_background_lb.setVisible(True)
+
+    def low_score(self):
+        print("low score")
+
+        self.record_background_lb.setVisible(False)
+        self.record_new_background_lb.setVisible(False)
+        self.record_high_background_lb.setVisible(False)
+
+        self.record_low_background_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
+        record_background_1 = QtGui.QPixmap("./images/record_low.png")  # 사진 넣을 pixmap
+        self.record_low_background_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+        self.record_low_background_lb.setPixmap(record_background_1)  # 메인 배경 사진의 pixmap설정
+
+        # 높은 점수 정렬 버튼
+        btn_high_score = QPushButton("", self.record_low_background_lb)
+        btn_high_score.setGeometry(85, 147, 180, 55)
+        btn_high_score.clicked.connect(self.high_score)
+        opacity_effect = QGraphicsOpacityEffect(btn_high_score)
+        opacity_effect.setOpacity(0)
+        btn_high_score.setGraphicsEffect(opacity_effect)
+
+        # 낮은 점수 정렬 버튼
+        btn_low_score = QPushButton("", self.record_low_background_lb)
+        btn_low_score.setGeometry(311, 147, 180, 55)
+        btn_low_score.clicked.connect(self.low_score)
+        opacity_effect = QGraphicsOpacityEffect(btn_low_score)
+        opacity_effect.setOpacity(0)
+        btn_low_score.setGraphicsEffect(opacity_effect)
+
+        # 최신순 점수 정렬 버튼
+        btn_new_score = QPushButton("", self.record_low_background_lb)
+        btn_new_score.setGeometry(537, 147, 180, 55)
+        btn_new_score.clicked.connect(self.new_score)
+        opacity_effect = QGraphicsOpacityEffect(btn_new_score)
+        opacity_effect.setOpacity(0)
+        btn_new_score.setGraphicsEffect(opacity_effect)
+
+        # 뒤로가기 버튼
+        btn_return = QPushButton("", self.record_low_background_lb)
+        btn_return.setGeometry(75, 55, 60, 60)
+        btn_return.clicked.connect(self.go_to_home)
+        opacity_effect = QGraphicsOpacityEffect(btn_return)
+        opacity_effect.setOpacity(0)
+        btn_return.setGraphicsEffect(opacity_effect)
+
+        # csv 파일
+        df = pd.read_csv("./text/score.csv")  # csv파일 읽어보기
+        df = df.sort_values(by=['score'], ascending=True)  # 점수 낮은 순으로 정렬
+        print(df)  # 디버깅용 출력
+
+        # 낮은 점수 순 scrollArea 선언
+        low_scrollArea = QScrollArea(self.record_low_background_lb)
+        low_scrollArea.setGeometry(82, 215, 640, 400)
+        low_scrollArea.setStyleSheet("background-color: #ffe22f; color:#022c00;")
+
+        # 정렬된 df를 string형으로 형변환 후 QLabel에 setText해줌
+        low_scores = QLabel(str(df))
+        low_scores.setGeometry(10, 5, 620, 390)
+        low_scores.setAlignment(Qt.AlignHCenter)
+        low_scores.setFont(QFont('JalnanOTF', 20))
+        low_scrollArea.setWidget(low_scores)
+
+        self.record_low_background_lb.setVisible(True)
+
+    def new_score(self):
+        print("new score")
+
+        self.record_background_lb.setVisible(False)
+        self.record_low_background_lb.setVisible(False)
+        self.record_high_background_lb.setVisible(False)
+
+        self.record_new_background_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
+        record_background_1 = QtGui.QPixmap("./images/record_new.png")  # 사진 넣을 pixmap
+        self.record_new_background_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+        self.record_new_background_lb.setPixmap(record_background_1)  # 메인 배경 사진의 pixmap설정
+
+        # 높은 점수 정렬 버튼
+        btn_high_score = QPushButton("", self.record_new_background_lb)
+        btn_high_score.setGeometry(85, 147, 180, 55)
+        btn_high_score.clicked.connect(self.high_score)
+        opacity_effect = QGraphicsOpacityEffect(btn_high_score)
+        opacity_effect.setOpacity(0)
+        btn_high_score.setGraphicsEffect(opacity_effect)
+
+        # 낮은 점수 정렬 버튼
+        btn_low_score = QPushButton("", self.record_new_background_lb)
+        btn_low_score.setGeometry(311, 147, 180, 55)
+        btn_low_score.clicked.connect(self.low_score)
+        opacity_effect = QGraphicsOpacityEffect(btn_low_score)
+        opacity_effect.setOpacity(0)
+        btn_low_score.setGraphicsEffect(opacity_effect)
+
+        # 최신순 점수 정렬 버튼
+        btn_new_score = QPushButton("", self.record_new_background_lb)
+        btn_new_score.setGeometry(537, 147, 180, 55)
+        btn_new_score.clicked.connect(self.new_score)
+        opacity_effect = QGraphicsOpacityEffect(btn_new_score)
+        opacity_effect.setOpacity(0)
+        btn_new_score.setGraphicsEffect(opacity_effect)
+
+        # 뒤로가기 버튼
+        btn_return = QPushButton("", self.record_new_background_lb)
+        btn_return.setGeometry(75, 55, 60, 60)
+        btn_return.clicked.connect(self.go_to_home)
+        opacity_effect = QGraphicsOpacityEffect(btn_return)
+        opacity_effect.setOpacity(0)
+        btn_return.setGraphicsEffect(opacity_effect)
+
+        # csv 파일
+        df = pd.read_csv("./text/score.csv")  # csv파일 읽어보기
+        df = df.sort_values(by=['datetime'], ascending=False)  # 점수 낮은 순으로 정렬
+        print(df)  # 디버깅용 출력
+
+        # 최신순 scrollArea 선언
+        new_scrollArea = QScrollArea(self.record_new_background_lb)
+        new_scrollArea.setGeometry(82, 215, 640, 400)
+        new_scrollArea.setStyleSheet("background-color: #ffe22f; color:#022c00;")
+
+        # 정렬된 df를 string형으로 형변환 후 QLabel에 setText해줌
+        new_scores = QLabel(str(df))
+        new_scores.setGeometry(10, 5, 620, 390)
+        new_scores.setAlignment(Qt.AlignHCenter)
+        new_scores.setFont(QFont('JalnanOTF', 20))
+        new_scrollArea.setWidget(new_scores)
+
+        self.record_new_background_lb.setVisible(True)
+
     # 게임 기록 하기
     def write_game_record(self):
         nickname, ok = QInputDialog.getText(self, '게임 기록', '닉네임 or 이름을 입력하세요')
@@ -712,9 +958,29 @@ class GrawingSeed(QWidget):
             for slang_word in slang_data:
                 slang_word = slang_word.split(",")
             if nickname not in slang_word:
-                score_file = open('text/score.txt', 'a', encoding='utf-8')
-                score_file.write(nickname + '\t' + str(self.score_label.text()) + '님\t' + str(self.star_count) + '개\n')
-                score_file.close()
+                # df = pd.read_csv("./text/score.csv")
+                # # Add a new row
+                # df = df.append(
+                #     {
+                #         "time": nickname,
+                #         "nickname": self.score_label.text(),
+                #         "score": self.star_count
+                #     },
+                #     ignore_index=True)
+                # # Sort the table
+                # # df = df.sort_values(by=['time'], ascending=True)
+                # # Print the table
+                # print(df)
+                today = datetime.today()
+                year = today.year
+                month = today.month
+                day = today.day
+                hour = today.hour
+                minute = today.minute
+                current_time = str(year)[-2:] + str(month) + str(day) + str(hour) + str(minute)
+                f = open('./text/score.csv', 'a', newline='', encoding="utf-8")
+                wr = csv.writer(f)
+                wr.writerow([self.star_count, nickname, self.score_label.text()[:-1], current_time])
             else:
                 q = QMessageBox(QMessageBox.Warning, "비속어 사용 감지", "비속어는 사용할 수 없습니다")
                 q.setStandardButtons(QMessageBox.Ok);
@@ -741,7 +1007,11 @@ class GrawingSeed(QWidget):
     # 뒤로가기 버튼
     def go_to_home(self):
         self.main_background_lb.setVisible(True)
-        self.game_success_lb.setVisible(False)
+        self.rule_background_lb.setVisible(False)
+        self.record_background_lb.setVisible(False)
+        self.record_high_background_lb.setVisible(False)
+        self.record_low_background_lb.setVisible(False)
+        self.record_new_background_lb.setVisible(False)
 
         self.dust_times = []
         self.dust_count = 0
