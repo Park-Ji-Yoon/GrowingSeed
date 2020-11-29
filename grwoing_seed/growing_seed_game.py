@@ -9,6 +9,7 @@ from PySide2.QtGui import QFont, QIcon, QPixmap
 from PySide2.QtWidgets import *
 import pygame
 import pandas as pd
+from pygame import mixer
 from datetime import datetime
 
 # 게임 클래스
@@ -55,7 +56,8 @@ class GrawingSeed(QWidget):
         self.main_background_lb.setPixmap(main_background)  # 메인 배경 사진의 pixmap설정
 
         self.record_background_lb = QLabel()  # 메인 배경 사진을 넣을 라벨
-        self.rule_background_lb = QLabel()  # 메인 배경 사진을 넣을 라벨ㅈ
+        self.rule_background_lb = QLabel()
+        self.record_background_lb = QLabel()
         self.record_high_background_lb = QLabel()
         self.record_low_background_lb = QLabel()
         self.record_new_background_lb = QLabel()
@@ -89,20 +91,28 @@ class GrawingSeed(QWidget):
 
         # 메인 화면 창
         self.setWindowTitle("Growing Seed")  # 창 제목
-        self.resize(800, 650)  # 창 사이즈
+        self.setFixedSize(800, 650)  # 창 사이즈 설정 및 고정 (크기 변환 불가능)
         self.center()  # 창을 가운데로 위치
         self.show()  # 창을 보여줌
 
     # 게임 기록 버튼 이벤트
     def btn_record_clicked(self):
+        self.btn_sound()
         self.show_game_record()
+
+    # 버튼 클릭 효과음
+    def btn_sound(self):
+        self.sound_file = mixer.Sound('./music/btn_sound2.mp3')
+        self.sound_file.play()
 
     # 게임 시작 버튼 이벤트
     def btn_start_clicked(self):
+        self.btn_sound()
         self.start_play_game()
 
     # 게임 방법 버튼 이벤트
     def btn_rule_clicked(self):
+        self.btn_sound()
         self.show_game_rule()
 
     # 창을 화면은 가운데로 옮겨주는 함수
@@ -113,6 +123,8 @@ class GrawingSeed(QWidget):
         self.move(qr.topLeft())  # 현재 창을 qr의 위치로 이동시킴
 
     def start_play_game(self):
+        self.btn_sound()
+
         # 배경 사진 설정
         self.game_background_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
         game_background_1 = QtGui.QPixmap("./images/game_1.png")  # 사진 넣을 pixmap
@@ -128,6 +140,7 @@ class GrawingSeed(QWidget):
         self.game_background_lb.setVisible(True)
 
     def btn_go_home(self):
+        self.btn_sound()
         self.game_background_lb.setVisible(False)
         self.game_over_lb.setVisible(False)
         self.main_background_lb.setVisible(True)
@@ -914,7 +927,7 @@ class GrawingSeed(QWidget):
         # 뒤로가기 버튼
         btn_return = QPushButton("", self.record_high_background_lb)
         btn_return.setGeometry(75, 55, 60, 60)
-        btn_return.clicked.connect(self.go_to_home)
+        btn_return.clicked.connect(self.from_record_to_home)
         opacity_effect = QGraphicsOpacityEffect(btn_return)
         opacity_effect.setOpacity(0)
         btn_return.setGraphicsEffect(opacity_effect)
@@ -977,7 +990,7 @@ class GrawingSeed(QWidget):
         # 뒤로가기 버튼
         btn_return = QPushButton("", self.record_low_background_lb)
         btn_return.setGeometry(75, 55, 60, 60)
-        btn_return.clicked.connect(self.go_to_home)
+        btn_return.clicked.connect(self.from_record_to_home)
         opacity_effect = QGraphicsOpacityEffect(btn_return)
         opacity_effect.setOpacity(0)
         btn_return.setGraphicsEffect(opacity_effect)
@@ -1040,7 +1053,7 @@ class GrawingSeed(QWidget):
         # 뒤로가기 버튼
         btn_return = QPushButton("", self.record_new_background_lb)
         btn_return.setGeometry(75, 55, 60, 60)
-        btn_return.clicked.connect(self.go_to_home)
+        btn_return.clicked.connect(self.from_record_to_home)
         opacity_effect = QGraphicsOpacityEffect(btn_return)
         opacity_effect.setOpacity(0)
         btn_return.setGraphicsEffect(opacity_effect)
@@ -1115,15 +1128,25 @@ class GrawingSeed(QWidget):
 
     # 뒤로가기 버튼
     def go_to_home(self):
-        self.main_background_lb.setVisible(True)
+        self.btn_sound()
+
         self.rule_background_lb.setVisible(False)
         self.record_background_lb.setVisible(False)
         self.record_high_background_lb.setVisible(False)
         self.record_low_background_lb.setVisible(False)
         self.record_new_background_lb.setVisible(False)
+        self.main_background_lb.setVisible(True)
 
         self.dust_times = []
         self.dust_count = 0
+
+    def from_record_to_home(self):
+
+        self.btn_sound()
+        self.main_background_lb.setVisible(True)
+        self.record_high_background_lb.setVisible(False)
+        self.record_low_background_lb.setVisible(False)
+        self.record_new_background_lb.setVisible(False)
 
     def none_item(self):
         reply = QMessageBox.question(self, '아이템 없음', '아이템을 선택해주세요', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -1153,7 +1176,6 @@ class GrawingSeed(QWidget):
             self.time = 0
         else:
             event.ignore()
-
 
 # 실행하는 메인함수
 if __name__ == '__main__':
