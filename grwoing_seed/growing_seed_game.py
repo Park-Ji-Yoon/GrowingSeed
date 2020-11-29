@@ -2,6 +2,7 @@ import csv
 import sys
 import threading
 import random
+import warnings
 
 from PySide2 import QtCore, QtGui
 from PySide2.QtCore import QTimer, Qt
@@ -11,6 +12,9 @@ import pygame
 import pandas as pd
 from pygame import mixer
 from datetime import datetime
+
+# 경고(경고 메시지) 무시
+warnings.filterwarnings(action='ignore')
 
 # 게임 클래스
 class GrawingSeed(QWidget):
@@ -51,7 +55,7 @@ class GrawingSeed(QWidget):
 
         # 메인 화면 설정
         self.main_background_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
-        main_background = QtGui.QPixmap("./images/main.png")  # 사진 넣을 pixmap
+        main_background = QtGui.QPixmap("./images/main_background.png")  # 사진 넣을 pixmap
         self.main_background_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
         self.main_background_lb.setPixmap(main_background)  # 메인 배경 사진의 pixmap설정
 
@@ -62,12 +66,25 @@ class GrawingSeed(QWidget):
         self.record_low_background_lb = QLabel()
         self.record_new_background_lb = QLabel()
 
+        self.turtorial_1_lb = QLabel()
+        self.turtorial_2_lb = QLabel()
+        self.turtorial_3_lb = QLabel()
+        self.minigame_lb = QLabel()
+
         # 아이콘 설정
         self.setWindowIcon(QIcon('./images/icon.png'))
 
+        # 씨앗씨 이야기 보기 버튼
+        siasi_story_btn = QPushButton("", self.main_background_lb)
+        siasi_story_btn.setGeometry(320, 277, 280, 135)
+        siasi_story_btn.clicked.connect(self.btn_turtorial_1)
+        opacity_effect = QGraphicsOpacityEffect(siasi_story_btn)
+        opacity_effect.setOpacity(0)
+        siasi_story_btn.setGraphicsEffect(opacity_effect)
+
         # 게임 기록 버튼
         btn_record = QPushButton("", self.main_background_lb)
-        btn_record.setGeometry(90, 475, 180, 85)
+        btn_record.setGeometry(77, 472, 190, 85)
         btn_record.clicked.connect(self.btn_record_clicked)
         opacity_effect = QGraphicsOpacityEffect(btn_record)
         opacity_effect.setOpacity(0)
@@ -75,7 +92,7 @@ class GrawingSeed(QWidget):
 
         # 게임 시작 버튼
         btn_start = QPushButton("", self.main_background_lb)
-        btn_start.setGeometry(310, 475, 180, 85)
+        btn_start.setGeometry(305, 472, 190, 85)
         btn_start.clicked.connect(self.btn_start_clicked)
         opacity_effect = QGraphicsOpacityEffect(btn_start)
         opacity_effect.setOpacity(0)
@@ -83,7 +100,7 @@ class GrawingSeed(QWidget):
 
         # 게임 방법 버튼
         btn_rule = QPushButton("", self.main_background_lb)
-        btn_rule.setGeometry(530, 475, 180, 85)
+        btn_rule.setGeometry(537, 472, 190, 85)
         btn_rule.clicked.connect(self.btn_rule_clicked)
         opacity_effect = QGraphicsOpacityEffect(btn_rule)
         opacity_effect.setOpacity(0)
@@ -94,6 +111,159 @@ class GrawingSeed(QWidget):
         self.setFixedSize(800, 650)  # 창 사이즈 설정 및 고정 (크기 변환 불가능)
         self.center()  # 창을 가운데로 위치
         self.show()  # 창을 보여줌
+
+    # 버튼 클릭 효과음
+    def book_sound(self):
+        self.book_sound_file = mixer.Sound('./music/book_sound.wav')
+        self.book_sound_file.play()
+
+    def btn_turtorial_1(self):
+        self.book_sound()
+        self.main_background_lb.setVisible(False)
+
+        # 화면 설정
+        self.turtorial_1_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
+        turtorial_1_background = QtGui.QPixmap("./images/tutorial_1.png")  # 사진 넣을 pixmap
+        self.turtorial_1_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+        self.turtorial_1_lb.setPixmap(turtorial_1_background)  # 메인 배경 사진의 pixmap설정
+
+        # 다음으로 버튼
+        btn_next = QPushButton("", self.turtorial_1_lb)
+        btn_next.setGeometry(608, 440, 100, 32)
+        btn_next.clicked.connect(self.btn_turtorial_2)
+        opacity_effect = QGraphicsOpacityEffect(btn_next)
+        opacity_effect.setOpacity(0)
+        btn_next.setGraphicsEffect(opacity_effect)
+
+        # 뒤로가기 버튼
+        btn_return = QPushButton("", self.turtorial_1_lb)
+        btn_return.setGeometry(75, 55, 60, 60)
+        btn_return.clicked.connect(self.go_to_home)
+        opacity_effect = QGraphicsOpacityEffect(btn_return)
+        opacity_effect.setOpacity(0)
+        btn_return.setGraphicsEffect(opacity_effect)
+
+        self.turtorial_1_lb.setVisible(True)
+
+    def btn_turtorial_2(self):
+        self.book_sound()
+        self.turtorial_1_lb.setVisible(False)
+
+        # 화면 설정
+        self.turtorial_2_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
+        turtorial_2_background = QtGui.QPixmap("./images/tutorial_2.png")  # 사진 넣을 pixmap
+        self.turtorial_2_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+        self.turtorial_2_lb.setPixmap(turtorial_2_background)  # 메인 배경 사진의 pixmap설정
+
+        # 다음으로 버튼
+        btn_next = QPushButton("", self.turtorial_2_lb)
+        btn_next.setGeometry(608, 440, 100, 32)
+        btn_next.clicked.connect(self.mini_game)
+        opacity_effect = QGraphicsOpacityEffect(btn_next)
+        opacity_effect.setOpacity(0)
+        btn_next.setGraphicsEffect(opacity_effect)
+
+        # 뒤로가기 버튼
+        btn_return = QPushButton("", self.turtorial_2_lb)
+        btn_return.setGeometry(75, 55, 60, 60)
+        btn_return.clicked.connect(self.go_to_home)
+        opacity_effect = QGraphicsOpacityEffect(btn_return)
+        opacity_effect.setOpacity(0)
+        btn_return.setGraphicsEffect(opacity_effect)
+
+        self.turtorial_2_lb.setVisible(True)
+
+    def mini_game(self):
+        self.book_sound()
+        self.turtorial_2_lb.setVisible(False)
+
+        # 화면 설정
+        self.minigame_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
+        minigame_background = QtGui.QPixmap("./images/minigame.png")  # 사진 넣을 pixmap
+        self.minigame_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+        self.minigame_lb.setPixmap(minigame_background)  # 메인 배경 사진의 pixmap설정
+
+        # 씨앗씨 버튼
+        find_siasi = QPushButton("", self.minigame_lb)
+        find_siasi.setGeometry(750, 255, 50, 65)
+        find_siasi.clicked.connect(self.btn_turtorial_3)
+        opacity_effect = QGraphicsOpacityEffect(find_siasi)
+        opacity_effect.setOpacity(0)
+        find_siasi.setGraphicsEffect(opacity_effect)
+
+        # 다른 이모티콘 버튼
+        find_fail1 = QPushButton("", self.minigame_lb)
+        find_fail1.setGeometry(0, 150, 748, 500)
+        find_fail1.clicked.connect(self.minigame_fail)
+        opacity_effect = QGraphicsOpacityEffect(find_fail1)
+        opacity_effect.setOpacity(0)
+        find_fail1.setGraphicsEffect(opacity_effect)
+
+        find_fail2 = QPushButton("", self.minigame_lb)
+        find_fail2.setGeometry(748, 320, 52, 330)
+        find_fail2.clicked.connect(self.minigame_fail)
+        opacity_effect = QGraphicsOpacityEffect(find_fail2)
+        opacity_effect.setOpacity(0)
+        find_fail2.setGraphicsEffect(opacity_effect)
+
+        # 뒤로가기 버튼
+        btn_return = QPushButton("", self.minigame_lb)
+        btn_return.setGeometry(75, 55, 60, 60)
+        btn_return.clicked.connect(self.go_to_home)
+        opacity_effect = QGraphicsOpacityEffect(btn_return)
+        opacity_effect.setOpacity(0)
+        btn_return.setGraphicsEffect(opacity_effect)
+
+        self.minigame_lb.setVisible(True)
+
+    def minigame_fail(self):
+        fail_siasi_sound = mixer.Sound('./music/fail_siasi.mp3')
+        fail_siasi_sound.play()
+
+        msg = QMessageBox()
+        msg.setText("다시 씨앗씨를 찾아보세요")
+        msg.setWindowTitle("씨앗씨 찾기 실패")
+        msg.setWindowIcon(QtGui.QIcon("./images/fail.png"))
+        msg.setIcon(QMessageBox.Warning)
+        msg.exec_()
+
+    def btn_turtorial_3(self):
+        find_siasi_sound = mixer.Sound('./music/find_siasi.mp3')
+        find_siasi_sound.play()
+
+        self.minigame_lb.setVisible(False)
+
+        # 화면 설정
+        self.turtorial_3_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
+        turtorial_3_background = QtGui.QPixmap("./images/tutorial_3.png")  # 사진 넣을 pixmap
+        self.turtorial_3_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
+        self.turtorial_3_lb.setPixmap(turtorial_3_background)  # 메인 배경 사진의 pixmap설정
+
+        # 홈으로 버튼
+        go_home_btn = QPushButton("", self.turtorial_3_lb)
+        go_home_btn.setGeometry(236, 560, 150, 70)
+        go_home_btn.clicked.connect(self.go_to_home)
+        opacity_effect = QGraphicsOpacityEffect(go_home_btn)
+        opacity_effect.setOpacity(0)
+        go_home_btn.setGraphicsEffect(opacity_effect)
+
+        # 게임 시작 버튼
+        strt_game_btn = QPushButton("", self.turtorial_3_lb)
+        strt_game_btn.setGeometry(413, 560, 150, 70)
+        strt_game_btn.clicked.connect(self.start_play_game)
+        opacity_effect = QGraphicsOpacityEffect(strt_game_btn)
+        opacity_effect.setOpacity(0)
+        strt_game_btn.setGraphicsEffect(opacity_effect)
+
+        # 뒤로가기 버튼
+        btn_return = QPushButton("", self.turtorial_3_lb)
+        btn_return.setGeometry(75, 55, 60, 60)
+        btn_return.clicked.connect(self.go_to_home)
+        opacity_effect = QGraphicsOpacityEffect(btn_return)
+        opacity_effect.setOpacity(0)
+        btn_return.setGraphicsEffect(opacity_effect)
+
+        self.turtorial_3_lb.setVisible(True)
 
     # 게임 기록 버튼 이벤트
     def btn_record_clicked(self):
@@ -115,12 +285,13 @@ class GrawingSeed(QWidget):
         self.btn_sound()
         self.show_game_rule()
 
-    # 창을 화면은 가운데로 옮겨주는 함수
+    # 창을 화면의 가운데로 옮겨주는 함수
     def center(self):
+
         qr = self.frameGeometry()  # 창의 위치와 크기 정보 가져와서 qr에 넣음
         cp = QDesktopWidget().availableGeometry().center()  # 사용하는 모니터 화면의 가운데 위치 파악
         qr.moveCenter(cp)  # 창의 위치를 화면의 중심으로 이동
-        self.move(qr.topLeft())  # 현재 창을 qr의 위치로 이동시킴
+        self.move(qr.topLeft())  # 현재 창을 qr의 위치로 이동시킴")
 
     def start_play_game(self):
         self.btn_sound()
@@ -147,6 +318,9 @@ class GrawingSeed(QWidget):
 
     # 게임 오버 화면
     def game_over(self):
+        game_over_sound = mixer.Sound('./music/game_over_sound2.mp3')
+        game_over_sound.play()
+
         # 배경 사진 설정
         self.game_over_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
         game_background_3 = QtGui.QPixmap("./images/game_over.png")  # 사진 넣을 pixmap
@@ -174,6 +348,9 @@ class GrawingSeed(QWidget):
 
     # 씨앗씨 키우기 성공 화면
     def game_success(self):
+        game_success_sound = mixer.Sound('./music/game_success_sound1.mp3')
+        game_success_sound.play()
+
         # 점수 계산 함수 호출
         score_result = self.mark_score()
 
@@ -1137,6 +1314,11 @@ class GrawingSeed(QWidget):
         self.record_new_background_lb.setVisible(False)
         self.main_background_lb.setVisible(True)
 
+        self.turtorial_1_lb.setVisible(False)
+        self.turtorial_2_lb.setVisible(False)
+        self.turtorial_3_lb.setVisible(False)
+        self.minigame_lb.setVisible(False)
+
         self.dust_times = []
         self.dust_count = 0
 
@@ -1172,7 +1354,6 @@ class GrawingSeed(QWidget):
                                      QMessageBox.No)
         if reply == QMessageBox.Yes:
             event.accept()
-            self.timer.stop()
             self.time = 0
         else:
             event.ignore()
