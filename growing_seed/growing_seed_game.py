@@ -1,5 +1,4 @@
 import csv
-import sys
 import threading
 import random
 import warnings
@@ -1357,9 +1356,3 @@ class GrawingSeed(QWidget):
             self.time = 0
         else:
             event.ignore()
-
-# 실행하는 메인함수
-if __name__ == '__main__':
-    app = QApplication(sys.argv)  # 애플리케이션 객체 생성
-    ex = GrawingSeed()
-    sys.exit(app.exec_())
