@@ -16,6 +16,7 @@ from datetime import datetime
 # 경고(경고 메시지) 무시
 warnings.filterwarnings(action='ignore')
 
+
 # 게임 클래스
 class GrawingSeed(QWidget):
     use_water = 0  # 물뿌리개 사용 횟수
@@ -71,15 +72,11 @@ class GrawingSeed(QWidget):
         self.record_new_background_lb = QLabel()
         self.game_over_lb = QLabel()
         self.game_success_lb = QLabel()
-        self.game_background_lb = QLabel()
 
         self.turtorial_1_lb = QLabel()
         self.turtorial_2_lb = QLabel()
         self.turtorial_3_lb = QLabel()
         self.minigame_lb = QLabel()
-
-        self.dust_timer = QTimer()
-        self.bug_timer = QTimer()
 
         # 아이콘 설정
         self.setWindowIcon(QIcon('./images/icon.png'))
@@ -321,13 +318,6 @@ class GrawingSeed(QWidget):
         self.game_background_lb.setVisible(True)
 
     def btn_go_home(self):
-        # 메인 노래 설정
-        self.main_music_file = './music/main_music.mp3'
-        pygame.init()
-        pygame.mixer.init()
-        pygame.mixer.music.load(self.main_music_file)
-        pygame.mixer.music.play(-1)
-
         self.btn_sound()
         self.game_background_lb.setVisible(False)
         self.game_over_lb.setVisible(False)
@@ -335,13 +325,6 @@ class GrawingSeed(QWidget):
 
     # 게임 오버 화면
     def game_over(self):
-        self.timer.stop()
-        self.time = 0
-        self.bug_timer.stop()
-        self.bug_time = 0
-        self.dust_timer.stop()
-        self.dust_time = 0
-
         game_over_sound = mixer.Sound('./music/game_over_sound2.mp3')
         game_over_sound.play()
 
@@ -357,6 +340,7 @@ class GrawingSeed(QWidget):
         opacity_effect = QGraphicsOpacityEffect(self.game_over_home)
         opacity_effect.setOpacity(0)
         self.game_over_home.setGraphicsEffect(opacity_effect)
+        self.game_over_home.setStyleSheet("background-color: red")
 
         # 아이템 사용 횟수 0으로 초기화
         self.use_water = 0
@@ -365,8 +349,6 @@ class GrawingSeed(QWidget):
 
         self.dust_times = []
         self.dust_count = 0
-
-        self.remove_weed = 0
 
     # 씨앗씨 키우기 성공 화면
     def game_success(self):
@@ -398,7 +380,7 @@ class GrawingSeed(QWidget):
         self.score_label = QLabel("0점", self.game_success_lb)
         self.score_label.setGeometry(100, 180, 700, 300)
         self.score_label.setFont(QFont('JalnanOTF', 60))
-        self.score_label.setAlignment(QtCore.Qt.AlignVCenter)
+        self.score_label.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignCenter)
 
         # 배경 사진 설정
         if score_result <= 200:
@@ -550,29 +532,16 @@ class GrawingSeed(QWidget):
 
         # 환경 오염 발생 준비
         self.dust_times = []  # 환경 오염이 발생할 시간 담을 list
-        self.dust_count = random.randint(2, 4)  # 환경 오염 발생 횟수
-        rand_num = random.randrange(8, 70, 15)
+        self.dust_count = random.randint(2, 5)  # 환경 오염 발생 횟수
+        rand_num = random.randrange(1, 62, 12)
         # 겹치지 않게 self.dust_count만큼 랜덤 숫자를 뽑음
         for i in range(self.dust_count):
             while rand_num in self.dust_times:
-                rand_num = random.randrange(8, 70, 15)
+                rand_num = random.randrange(1, 62, 12)
             self.dust_times.append(rand_num)
         print("정렬 전 : " + str(self.dust_times))  # 디버깅용
         self.dust_times.sort()
         print("정렬 후 : " + str(self.dust_times))  # 디버깅용
-
-        # 환경 오염 발생 준비
-        self.bug_times = []  # 환경 오염이 발생할 시간 담을 list
-        self.bug_count = random.randint(2, 4)  # 환경 오염 발생 횟수
-        rand_num2 = random.randrange(1, 65, 15)
-        # 겹치지 않게 self.dust_count만큼 랜덤 숫자를 뽑음
-        for i in range(self.bug_count):
-            while rand_num2 in self.bug_times:
-                rand_num2 = random.randrange(1, 65, 15)
-            self.bug_times.append(rand_num2)
-        print("정렬 전 : " + str(self.bug_times))  # 디버깅용
-        self.bug_times.sort()
-        print("정렬 후 : " + str(self.bug_times))  # 디버깅용
 
         self.weed_count = 0
 
@@ -636,66 +605,6 @@ class GrawingSeed(QWidget):
         self.weed10.clicked.connect(self.click_weed)
         self.weed10.setVisible(False)
 
-        # 잡초 버튼 11
-        self.weed11 = QPushButton("", self.game_background_lb)
-        self.weed11.setGeometry(random.randint(50, 200), random.randint(70, 600), 48, 48)
-        self.weed11.clicked.connect(self.click_weed)
-        self.weed11.setVisible(False)
-
-        # 잡초 버튼 12
-        self.weed12 = QPushButton("", self.game_background_lb)
-        self.weed12.setGeometry(random.randint(550, 700), random.randint(70, 600), 48, 48)
-        self.weed12.clicked.connect(self.click_weed)
-        self.weed12.setVisible(False)
-
-        # 잡초 버튼 13
-        self.weed13 = QPushButton("", self.game_background_lb)
-        self.weed13.setGeometry(random.randint(50, 200), random.randint(70, 600), 48, 48)
-        self.weed13.clicked.connect(self.click_weed)
-        self.weed13.setVisible(False)
-
-        # 잡초 버튼 14
-        self.weed14 = QPushButton("", self.game_background_lb)
-        self.weed14.setGeometry(random.randint(550, 700), random.randint(70, 600), 48, 48)
-        self.weed14.clicked.connect(self.click_weed)
-        self.weed14.setVisible(False)
-
-        # 잡초 버튼 15
-        self.weed15 = QPushButton("", self.game_background_lb)
-        self.weed15.setGeometry(random.randint(50, 200), random.randint(70, 600), 48, 48)
-        self.weed15.clicked.connect(self.click_weed)
-        self.weed15.setVisible(False)
-
-        # 잡초 버튼 16
-        self.weed16 = QPushButton("", self.game_background_lb)
-        self.weed16.setGeometry(random.randint(550, 700), random.randint(70, 600), 48, 48)
-        self.weed16.clicked.connect(self.click_weed)
-        self.weed16.setVisible(False)
-
-        # 잡초 버튼 17
-        self.weed17 = QPushButton("", self.game_background_lb)
-        self.weed17.setGeometry(random.randint(50, 200), random.randint(70, 600), 48, 48)
-        self.weed17.clicked.connect(self.click_weed)
-        self.weed17.setVisible(False)
-
-        # 잡초 버튼 18
-        self.weed18 = QPushButton("", self.game_background_lb)
-        self.weed18.setGeometry(random.randint(550, 700), random.randint(70, 600), 48, 48)
-        self.weed18.clicked.connect(self.click_weed)
-        self.weed18.setVisible(False)
-
-        # 잡초 버튼 19
-        self.weed19 = QPushButton("", self.game_background_lb)
-        self.weed19.setGeometry(random.randint(50, 200), random.randint(70, 600), 48, 48)
-        self.weed19.clicked.connect(self.click_weed)
-        self.weed19.setVisible(False)
-
-        # 잡초 버튼 20
-        self.weed20 = QPushButton("", self.game_background_lb)
-        self.weed20.setGeometry(random.randint(550, 700), random.randint(70, 600), 48, 48)
-        self.weed20.clicked.connect(self.click_weed)
-        self.weed20.setVisible(False)
-
     # 게임 오버되었는지 확인하는 함수
     def game_over_check(self):
         # 한 아이템당 사용 횟수가 10 이상이면 게임 오버
@@ -709,24 +618,24 @@ class GrawingSeed(QWidget):
 
     def growing(self, level):
         if level == 1:
-            if GrawingSeed.use_water >= 3 and self.bug_success >= 0 and self.dust_success >= 0:
+            if GrawingSeed.use_water >= 2 and self.bug_success >= 1 and self.dust_success >= 0:
                 self.btn_char.setStyleSheet(
                     "background-image : url(./images/second_stage.png); border: 0px solid black;")
                 GrawingSeed.current_level = 2
 
         elif level == 2:
-            if GrawingSeed.use_water >= 5 and self.bug_success >= 0 and self.dust_success >= 0:
+            if GrawingSeed.use_water >= 4 and self.bug_success >= 1 and self.dust_success >= 0:
                 self.btn_char.setStyleSheet(
                     "background-image : url(./images/third_stage.png); border: 0px solid black;")
                 GrawingSeed.current_level = 3
 
         elif level == 3:
-            if GrawingSeed.use_water >= 7 and self.bug_success >= 0 and self.dust_success >= 0:
+            if GrawingSeed.use_water >= 6 and self.bug_success >= 1 and self.dust_success >= 0:
                 self.btn_char.setStyleSheet("background-image : url(./images/last_stage.png); border: 0px solid black;")
                 GrawingSeed.current_level = 4
 
         elif level == 4:
-            if GrawingSeed.use_water >= 9 and self.bug_success >= 2 and self.dust_success >= 2:
+            if GrawingSeed.use_water >= 8 and self.bug_success >= 1 and self.dust_success >= 1:
                 self.game_success()
 
                 GrawingSeed.water_btn_time = 0  # 아이템 초수 초기화
@@ -769,11 +678,8 @@ class GrawingSeed(QWidget):
             if self.time % 10 == 0:
                 self.label_timer.setText(str(self.time // 10) + "시간")
             # 7로 나누어 떨어질 때바다 벌레가 출몰
-            # if self.time % 10 == 5:
-            #     self.bug(GrawingSeed.current_level)
-            for j in self.bug_times:
-                if j == self.time:
-                    self.bug(GrawingSeed.current_level)
+            if self.time % 10 == 5:
+                self.bug(GrawingSeed.current_level)
             # 게임 시작 시 설정한 시간마다 환경오염 발생
             for i in self.dust_times:
                 if i == self.time:
@@ -787,50 +693,31 @@ class GrawingSeed(QWidget):
                     self.weed1.setStyleSheet("background-image : url(./images/weed_ver1.png); border: 0px solid black;")
                     self.weed2.setVisible(True)
                     self.weed2.setStyleSheet("background-image : url(./images/weed_ver2.png); border: 0px solid black;")
-                    self.weed11.setVisible(True)
-                    self.weed11.setStyleSheet("background-image : url(./images/weed_ver4.png); border: 0px solid black;")
-                    self.weed12.setVisible(True)
-                    self.weed12.setStyleSheet("background-image : url(./images/weed_ver5.png); border: 0px solid black;")
                     self.weed_count += 1
                 elif self.weed_count == 2:
                     self.weed3.setVisible(True)
                     self.weed3.setStyleSheet("background-image : url(./images/weed_ver3.png); border: 0px solid black;")
                     self.weed4.setVisible(True)
                     self.weed4.setStyleSheet("background-image : url(./images/weed_ver1.png); border: 0px solid black;")
-                    self.weed13.setVisible(True)
-                    self.weed13.setStyleSheet("background-image : url(./images/weed_ver6.png); border: 0px solid black;")
-                    self.weed14.setVisible(True)
-                    self.weed14.setStyleSheet("background-image : url(./images/weed_ver4.png); border: 0px solid black;")
                     self.weed_count += 1
                 elif self.weed_count == 3:
                     self.weed5.setVisible(True)
                     self.weed5.setStyleSheet("background-image : url(./images/weed_ver2.png); border: 0px solid black;")
                     self.weed6.setVisible(True)
                     self.weed6.setStyleSheet("background-image : url(./images/weed_ver3.png); border: 0px solid black;")
-                    self.weed15.setVisible(True)
-                    self.weed15.setStyleSheet("background-image : url(./images/weed_ver5.png); border: 0px solid black;")
-                    self.weed16.setVisible(True)
-                    self.weed16.setStyleSheet("background-image : url(./images/weed_ver6.png); border: 0px solid black;")
                     self.weed_count += 1
                 elif self.weed_count == 4:
                     self.weed7.setVisible(True)
                     self.weed7.setStyleSheet("background-image : url(./images/weed_ver1.png); border: 0px solid black;")
                     self.weed8.setVisible(True)
                     self.weed8.setStyleSheet("background-image : url(./images/weed_ver2.png); border: 0px solid black;")
-                    self.weed17.setVisible(True)
-                    self.weed17.setStyleSheet("background-image : url(./images/weed_ver4.png); border: 0px solid black;")
-                    self.weed18.setVisible(True)
-                    self.weed18.setStyleSheet("background-image : url(./images/weed_ver5.png); border: 0px solid black;")
                     self.weed_count += 1
                 elif self.weed_count == 5:
                     self.weed9.setVisible(True)
                     self.weed9.setStyleSheet("background-image : url(./images/weed_ver3.png); border: 0px solid black;")
                     self.weed10.setVisible(True)
-                    self.weed10.setStyleSheet("background-image : url(./images/weed_ver1.png); border: 0px solid black;")
-                    self.weed19.setVisible(True)
-                    self.weed19.setStyleSheet("background-image : url(./images/weed_ver6.png); border: 0px solid black;")
-                    self.weed20.setVisible(True)
-                    self.weed20.setStyleSheet("background-image : url(./images/weed_ver4.png); border: 0px solid black;")
+                    self.weed10.setStyleSheet(
+                        "background-image : url(./images/weed_ver1.png); border: 0px solid black;")
                     self.weed_count = 0
 
     # 잡초 클릭 이벤트
@@ -872,7 +759,7 @@ class GrawingSeed(QWidget):
             print("벌레에게 죽음-----")
             self.bug_timer.stop()
             self.bug_time = 0
-            self.game_over()
+            self.game_over_check()
             self.game_background_lb.setVisible(False)
             self.game_over_lb.setVisible(True)
 
@@ -929,7 +816,7 @@ class GrawingSeed(QWidget):
             print("환경오염으로 죽음-----")
             self.dust_timer.stop()
             self.dust_time = 0
-            self.game_over()
+            self.game_over_check()
             self.game_background_lb.setVisible(False)
             self.game_over_lb.setVisible(True)
 
@@ -945,7 +832,7 @@ class GrawingSeed(QWidget):
             print(f'우산 타이머 : {GrawingSeed.umbrella_btn_time}')
             self.dust_timer.stop()
 
-        if GrawingSeed.water_btn_time == 2 or GrawingSeed.pesticide_btn_time == 3 or GrawingSeed.umbrella_btn_time == 3:
+        if GrawingSeed.water_btn_time == 3 or GrawingSeed.pesticide_btn_time == 3 or GrawingSeed.umbrella_btn_time == 3:
             GrawingSeed.water_btn_time = 0
             GrawingSeed.pesticide_btn_time = 0
             GrawingSeed.umbrella_btn_time = 0
@@ -984,7 +871,7 @@ class GrawingSeed(QWidget):
         self.item_timer.setInterval(1000)
         self.item_timer.timeout.connect(self.printTime)
 
-        if self.which_btn == 1 and self.isBug == False and self.isDust == False:
+        if self.which_btn == 1 and self.isBug == False and self.isDust == False and self.isPesticide == False and self.isUmbrella == False:
             GrawingSeed.use_water += 1
             self.label_water.setText(str(GrawingSeed.use_water) + "번")
 
@@ -1021,7 +908,7 @@ class GrawingSeed(QWidget):
             except:
                 print("물뿌리개 에러---")
 
-        elif self.which_btn == 2 and self.isBug == True:
+        elif self.which_btn == 2 and self.isBug == True and self.isWatering == False and self.isUmbrella == False:
             GrawingSeed.use_pesticide += 1
             self.label_bug.setText(str(GrawingSeed.use_pesticide) + "번")
 
@@ -1065,7 +952,7 @@ class GrawingSeed(QWidget):
             except:
                 print("살충제 에러---")
 
-        elif self.which_btn == 3 and self.isDust == True:
+        elif self.which_btn == 3 and self.isDust == True and self.isWatering == False and self.isPesticide == False:
             GrawingSeed.use_umbrella += 1
             self.label_clean.setText(str(GrawingSeed.use_umbrella) + "번")
 
@@ -1432,13 +1319,6 @@ class GrawingSeed(QWidget):
     def go_to_home(self):
         self.btn_sound()
 
-        # 메인 노래 설정
-        self.main_music_file = './music/main_music.mp3'
-        pygame.init()
-        pygame.mixer.init()
-        pygame.mixer.music.load(self.main_music_file)
-        pygame.mixer.music.play(-1)
-
         self.rule_background_lb.setVisible(False)
         self.record_background_lb.setVisible(False)
         self.record_high_background_lb.setVisible(False)
@@ -1446,7 +1326,6 @@ class GrawingSeed(QWidget):
         self.record_new_background_lb.setVisible(False)
         self.main_background_lb.setVisible(True)
         self.game_success_lb.setVisible(False)
-        self.game_background_lb.setVisible(False)
 
         self.turtorial_1_lb.setVisible(False)
         self.turtorial_2_lb.setVisible(False)
@@ -1491,3 +1370,12 @@ class GrawingSeed(QWidget):
             self.time = 0
         else:
             event.ignore()
+
+# 경고(경고 메시지) 무시
+warnings.filterwarnings(action='ignore')
+
+# 실행하는 메인함수
+if __name__ == '__main__':
+    app = QApplication(sys.argv)  # 애플리케이션 객체 생성
+    ex = GrawingSeed()
+    sys.exit(app.exec_())

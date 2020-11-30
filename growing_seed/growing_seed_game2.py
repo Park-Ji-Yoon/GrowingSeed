@@ -16,6 +16,7 @@ from datetime import datetime
 # 경고(경고 메시지) 무시
 warnings.filterwarnings(action='ignore')
 
+
 # 게임 클래스
 class GrawingSeed(QWidget):
     use_water = 0  # 물뿌리개 사용 횟수
@@ -1491,3 +1492,12 @@ class GrawingSeed(QWidget):
             self.time = 0
         else:
             event.ignore()
+
+# 경고(경고 메시지) 무시
+warnings.filterwarnings(action='ignore')
+
+# 실행하는 메인함수
+if __name__ == '__main__':
+    app = QApplication(sys.argv)  # 애플리케이션 객체 생성
+    ex = GrawingSeed()
+    sys.exit(app.exec_())
