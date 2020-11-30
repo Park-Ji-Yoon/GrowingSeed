@@ -1,5 +1,5 @@
+# import 구문
 import csv
-import sys
 import threading
 import random
 import warnings
@@ -28,24 +28,29 @@ class GrawingSeed(QWidget):
     def __init__(self):
         super().__init__()
         self.start_growing_seed()
-
-        self.time = 0
-        self.bug_time = 0
-        self.dust_time = 0
+        
+        # 시간 (초) 변수 초기화
+        self.time = 0   # 게임 진행 시간
+        self.bug_time = 0   # 벌레 등장 후 시간
+        self.dust_time = 0  # 환경오염 발생 후 시간
+        
+        # 물뿌리개, 살충제, 우산 중 어느 버튼이 선택되었는지 확인하는 변수
         self.which_btn = 0
-
+        
+        # 벌레가 나타난 상태인지 확인하는 변수
         self.isBug = False
+        # 환경오염이 발생한 상태인지 확인하는 변수
         self.isDust = False
 
-        self.isWatering = False
-        self.isPesticide = False
-        self.isUmbrella = False
-
+        # 벌레 퇴치 횟수
         self.bug_success = 0
+        # 환경오염 막은 퇴치 횟수
         self.dust_success = 0
 
+        # 산성비와 황사가 번갈아 등장하도록 돕는 변수
         self.change_dust = True
 
+        # 잡초 제거한 횟수
         self.remove_weed = 0
 
     # 화면 디자인 요소
@@ -62,7 +67,8 @@ class GrawingSeed(QWidget):
         main_background = QtGui.QPixmap("./images/main_background.png")  # 사진 넣을 pixmap
         self.main_background_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
         self.main_background_lb.setPixmap(main_background)  # 메인 배경 사진의 pixmap설정
-
+        
+        # 화면들 초기화
         self.record_background_lb = QLabel()  # 메인 배경 사진을 넣을 라벨
         self.rule_background_lb = QLabel()
         self.record_background_lb = QLabel()
@@ -78,6 +84,7 @@ class GrawingSeed(QWidget):
         self.turtorial_3_lb = QLabel()
         self.minigame_lb = QLabel()
 
+        # 벌레, 환경오염 타이머 초기화
         self.dust_timer = QTimer()
         self.bug_timer = QTimer()
 
@@ -127,6 +134,7 @@ class GrawingSeed(QWidget):
         self.book_sound_file = mixer.Sound('./music/book_sound.wav')
         self.book_sound_file.play()
 
+    # 튜토리얼(씨앗씨 이야기) 첫 번째 화면
     def btn_turtorial_1(self):
         self.book_sound()
         self.main_background_lb.setVisible(False)
@@ -155,6 +163,7 @@ class GrawingSeed(QWidget):
 
         self.turtorial_1_lb.setVisible(True)
 
+    # 튜토리얼(씨앗씨 이야기) 두 번째 화면
     def btn_turtorial_2(self):
         self.book_sound()
         self.turtorial_1_lb.setVisible(False)
@@ -183,6 +192,7 @@ class GrawingSeed(QWidget):
 
         self.turtorial_2_lb.setVisible(True)
 
+    # 미니게임 (씨앗씨 찾기) 화면
     def mini_game(self):
         self.book_sound()
         self.turtorial_2_lb.setVisible(False)
@@ -226,6 +236,7 @@ class GrawingSeed(QWidget):
 
         self.minigame_lb.setVisible(True)
 
+    # 미니게임 실패
     def minigame_fail(self):
         fail_siasi_sound = mixer.Sound('./music/fail_siasi.mp3')
         fail_siasi_sound.play()
@@ -237,6 +248,7 @@ class GrawingSeed(QWidget):
         msg.setIcon(QMessageBox.Warning)
         msg.exec_()
 
+    # 튜토리얼(씨앗씨 이야기) 세 번째 화면
     def btn_turtorial_3(self):
         find_siasi_sound = mixer.Sound('./music/find_siasi.mp3')
         find_siasi_sound.play()
@@ -297,14 +309,14 @@ class GrawingSeed(QWidget):
 
     # 창을 화면의 가운데로 옮겨주는 함수
     def center(self):
-
         qr = self.frameGeometry()  # 창의 위치와 크기 정보 가져와서 qr에 넣음
         cp = QDesktopWidget().availableGeometry().center()  # 사용하는 모니터 화면의 가운데 위치 파악
         qr.moveCenter(cp)  # 창의 위치를 화면의 중심으로 이동
         self.move(qr.topLeft())  # 현재 창을 qr의 위치로 이동시킴")
 
+    # 게임 시작 함수
     def start_play_game(self):
-        self.btn_sound()
+        self.btn_sound()    # 버튼 클릭 효과음 재생
 
         # 배경 사진 설정
         self.game_background_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
@@ -314,12 +326,14 @@ class GrawingSeed(QWidget):
 
         # 게임 엔진 시작
         self.game_engine()
-
+        
+        # 게임 타이머 시작
         self.timer.start()
 
         self.main_background_lb.setVisible(False)
         self.game_background_lb.setVisible(True)
 
+    # 게임오버 -> 메인화면 돌아가기 버튼 이벤트
     def btn_go_home(self):
         # 메인 노래 설정
         self.main_music_file = './music/main_music.mp3'
@@ -335,22 +349,24 @@ class GrawingSeed(QWidget):
 
     # 게임 오버 화면
     def game_over(self):
-        self.timer.stop()
-        self.time = 0
-        self.bug_timer.stop()
-        self.bug_time = 0
-        self.dust_timer.stop()
-        self.dust_time = 0
-
+        self.timer.stop()   # 게임 타이머 정지
+        self.time = 0   # 게임 시간 초기화 
+        self.bug_timer.stop()   # 벌레 타이머 정지
+        self.bug_time = 0   # 벌레 시간 초기화 
+        self.dust_timer.stop()   # 환경오염 타이머 정지
+        self.dust_time = 0  # 환경오염 시간 초기화
+        
+        # 게임오버 효과음 재생
         game_over_sound = mixer.Sound('./music/game_over_sound2.mp3')
         game_over_sound.play()
 
-        # 배경 사진 설정
+        # 게임 오버 배경 사진 설정
         self.game_over_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
         game_background_3 = QtGui.QPixmap("./images/game_over.png")  # 사진 넣을 pixmap
         self.game_over_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
         self.game_over_lb.setPixmap(game_background_3)  # 메인 배경 사진의 pixmap설정
-
+        
+        # 홈으로 버튼
         self.game_over_home = QPushButton("", self.game_over_lb)
         self.game_over_home.setGeometry(275, 438, 240, 100)
         self.game_over_home.clicked.connect(self.btn_go_home)
@@ -362,10 +378,12 @@ class GrawingSeed(QWidget):
         self.use_water = 0
         self.use_pesticide = 0
         self.use_umbrella = 0
-
+        
+        # 환경오염 발생 시간 리스트, 발생 횟수 초기화
         self.dust_times = []
         self.dust_count = 0
 
+        # 제거한 잡초 개수 초기화
         self.remove_weed = 0
 
     # 씨앗씨 키우기 성공 화면
@@ -400,35 +418,40 @@ class GrawingSeed(QWidget):
         self.score_label.setFont(QFont('JalnanOTF', 60))
         self.score_label.setAlignment(QtCore.Qt.AlignVCenter)
 
-        # 배경 사진 설정
-        if score_result <= 200:
+        # 점수에 따른 화면 설정
+        # 점수가 400 이하일 시 별 1개
+        if score_result <= 400:
             game_background_4 = QtGui.QPixmap("./images/one_star.png")  # 사진 넣을 pixmap
             self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
             self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
             bonus = 20
             self.star_count = 1
             self.score_label.setText(str(score_result + bonus) + "점")
-        elif score_result <= 400:
+        # 점수가 800 이하일 시 별 2개
+        elif score_result <= 800:
             game_background_4 = QtGui.QPixmap("./images/two_stars.png.png")  # 사진 넣을 pixmap
             self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
             self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
             bonus = 50
             self.star_count = 2
             self.score_label.setText(str(score_result + bonus) + "점")
-        elif score_result <= 600:
+        # 점수가 1200 이하일 시 별 3개
+        elif score_result <= 1200:
             game_background_4 = QtGui.QPixmap("./images/three_stars.png")  # 사진 넣을 pixmap
             self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
             self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
             bonus = 90
             self.star_count = 3
             self.score_label.setText(str(score_result + bonus) + "점")
-        elif score_result <= 800:
+        # 점수가 1400 이하일 시 별 4개
+        elif score_result <= 1400:
             game_background_4 = QtGui.QPixmap("./images/four_stars.png")  # 사진 넣을 pixmap
             self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
             self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
             bonus = 140
             self.star_count = 4
             self.score_label.setText(str(score_result + bonus) + "점")
+        # 점수가 3000 이하일 시 별 5개
         elif score_result <= 2000:
             game_background_4 = QtGui.QPixmap("./images/five_stars.png")  # 사진 넣을 pixmap
             self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
@@ -436,6 +459,7 @@ class GrawingSeed(QWidget):
             bonus = 200
             self.star_count = 5
             self.score_label.setText(str(score_result + bonus) + "점")
+        # 나올 수 없는 점수
         else:
             print("에러 : 나올 수 없는 점수 나옴")
 
@@ -444,7 +468,8 @@ class GrawingSeed(QWidget):
         self.use_water = 0
         self.use_pesticide = 0
         self.use_umbrella = 0
-
+        
+        # 홈으로 버튼
         self.btn_go_main = QPushButton("", self.game_success_lb)
         self.btn_go_main.setGeometry(132, 517, 240, 80)
         self.btn_go_main.clicked.connect(self.go_to_home)
@@ -452,6 +477,7 @@ class GrawingSeed(QWidget):
         opacity_effect1.setOpacity(0)
         self.btn_go_main.setGraphicsEffect(opacity_effect1)
 
+        # 기록하기 버튼
         self.record_btn = QPushButton("", self.game_success_lb)
         self.record_btn.setGeometry(430, 517, 240, 80)
         self.record_btn.clicked.connect(self.write_game_record)
@@ -464,29 +490,30 @@ class GrawingSeed(QWidget):
         self.game_success_lb.setVisible(True)
 
         # 게임 종료시 모든 타이머 종료
-        self.timer.stop()
-        self.dust_timer.stop()
-        self.bug_timer.stop()
-        self.item_timer.stop()
+        self.timer.stop()   # 게임 시간 타이머
+        self.dust_timer.stop()   # 환경오염 타이머
+        self.bug_timer.stop()   # 벌레 타이머
+        self.item_timer.stop()   # 아이템 대기 시간 타이머
 
     # 점수를 계산하는 함수
     def mark_score(self):
-        self.score = self.use_water * 8 + self.bug_success * 13 + self.dust_success * 13 + (
-                    120 - self.time) * 8 + self.remove_weed * 10
-        print(f'**점수** : " + {self.score}')
+        self.score = self.use_water * 8 + self.bug_success * 13 + self.dust_success * 13 + (120 - self.time) * 8 + self.remove_weed * 10
+        print(f'**점수** : " + {self.score}') # 디버깅용 출력
         return self.score
 
     # 게임 엔진
     def game_engine(self):
+        # 게임 음악 재생
         self.music_file = './music/background_music_py.mp3'
         pygame.init()
         pygame.mixer.init()
         pygame.mixer.music.load(self.music_file)
         pygame.mixer.music.play(-1)
 
+        # 처음 게임 시작 시 레벨 초기화 (1로 초기화)
         GrawingSeed.current_level = 1
 
-        # 시간 라벨
+        # 시간 라벨 (10초가 1시간)
         self.label_timer = QLabel("0시간", self.game_background_lb)
         self.label_timer.setGeometry(560, 40, 200, 50)
         self.label_timer.setFont(QFont('JalnanOTF', 28))
@@ -539,14 +566,13 @@ class GrawingSeed(QWidget):
         self.btn_umbrella.clicked.connect(self.btn_umbrella_clicked)
         self.btn_umbrella.setStyleSheet("background-image : url(./images/umbrella.png); border: 0px solid black;")
 
+        # 뒤돌아가기 버튼 (게임 중단 버튼)
         btn_gotohome = QPushButton("", self.game_background_lb)
         btn_gotohome.setGeometry(52, 50, 50, 50)
         btn_gotohome.clicked.connect(self.gotohome)
         opacity_effect = QGraphicsOpacityEffect(btn_gotohome)
         opacity_effect.setOpacity(0)
         btn_gotohome.setGraphicsEffect(opacity_effect)
-
-        # self.game_over()
 
         # 환경 오염 발생 준비
         self.dust_times = []  # 환경 오염이 발생할 시간 담을 list
@@ -561,11 +587,11 @@ class GrawingSeed(QWidget):
         self.dust_times.sort()
         print("정렬 후 : " + str(self.dust_times))  # 디버깅용
 
-        # 환경 오염 발생 준비
-        self.bug_times = []  # 환경 오염이 발생할 시간 담을 list
+        # 벌레 등장 준비
+        self.bug_times = []  # 벌레 등장할 시간 담을 list
         self.bug_count = random.randint(2, 4)  # 환경 오염 발생 횟수
         rand_num2 = random.randrange(1, 65, 15)
-        # 겹치지 않게 self.dust_count만큼 랜덤 숫자를 뽑음
+        # 겹치지 않게 self.bug_count만큼 랜덤 숫자를 뽑음
         for i in range(self.bug_count):
             while rand_num2 in self.bug_times:
                 rand_num2 = random.randrange(1, 65, 15)
@@ -954,9 +980,6 @@ class GrawingSeed(QWidget):
             self.btn_pesticide.setEnabled(True)
             self.btn_umbrella.setEnabled(True)
             self.item_timer.stop()
-            self.isWatering = False
-            self.isPesticide = False
-            self.isUmbrella = False
             self.btn_water.setStyleSheet("background-image : url(./images/watering.png); border: 0px solid black;")
             self.btn_pesticide.setStyleSheet("background-image : url(./images/pesticide.png); border: 0px solid black;")
             self.btn_umbrella.setStyleSheet("background-image : url(./images/umbrella.png); border: 0px solid black;")
@@ -989,7 +1012,6 @@ class GrawingSeed(QWidget):
             self.label_water.setText(str(GrawingSeed.use_water) + "번")
 
             try:
-                self.isWatering = True
                 self.btn_timer_flag = 0
                 self.item_timer.start()  # 물뿌리개 타이머 시작
                 self.btn_water.setEnabled(False)  # 물뿌리개 버튼 비활성화
@@ -1026,7 +1048,6 @@ class GrawingSeed(QWidget):
             self.label_bug.setText(str(GrawingSeed.use_pesticide) + "번")
 
             try:
-                self.isPesticide = True
                 self.btn_timer_flag = 1
                 self.item_timer.start()
                 self.btn_water.setEnabled(False)  # 물뿌리개 버튼 비활성화
@@ -1070,7 +1091,6 @@ class GrawingSeed(QWidget):
             self.label_clean.setText(str(GrawingSeed.use_umbrella) + "번")
 
             try:
-                self.isUmbrella = True
                 self.btn_timer_flag = 2
                 self.item_timer.start()
                 self.btn_water.setEnabled(False)  # 물뿌리개 버튼 비활성화
@@ -1455,17 +1475,20 @@ class GrawingSeed(QWidget):
 
         self.dust_times = []
         self.dust_count = 0
+        self.bug_times = []
+        self.bug_time = 0
 
+    # 게임기록 -> 홈화면 이동 버튼 이벤트
     def from_record_to_home(self):
-
         self.btn_sound()
         self.main_background_lb.setVisible(True)
         self.record_high_background_lb.setVisible(False)
         self.record_low_background_lb.setVisible(False)
         self.record_new_background_lb.setVisible(False)
-
+    
+    # 잘못된 아이템 선택했거나 아이템을 선택하지 않았을 때
     def none_item(self):
-        reply = QMessageBox.question(self, '아이템 없음', '아이템을 선택해주세요', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(self, '아이템이 잘못되었거나 없습니다', '아이템을 선택해주세요', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             return
         else:
@@ -1482,7 +1505,10 @@ class GrawingSeed(QWidget):
 
             self.dust_times = []
             self.dust_count = 0
+            self.bug_times = []
+            self.bug_time = 0
 
+    # window창의 X버튼 클릭 시 이벤트
     def closeEvent(self, event):
         reply = QMessageBox.question(self, '게임 종료', '정말 게임을 종료하시겠습니까?', QMessageBox.Yes | QMessageBox.No,
                                      QMessageBox.No)
