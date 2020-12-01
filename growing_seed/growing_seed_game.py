@@ -16,6 +16,7 @@ from datetime import datetime
 # 경고(경고 메시지) 무시
 warnings.filterwarnings(action='ignore')
 
+
 # 게임 클래스
 class GrawingSeed(QWidget):
     use_water = 0  # 물뿌리개 사용 횟수
@@ -28,15 +29,15 @@ class GrawingSeed(QWidget):
     def __init__(self):
         super().__init__()
         self.start_growing_seed()
-        
+
         # 시간 (초) 변수 초기화
-        self.time = 0   # 게임 진행 시간
-        self.bug_time = 0   # 벌레 등장 후 시간
+        self.time = 0  # 게임 진행 시간
+        self.bug_time = 0  # 벌레 등장 후 시간
         self.dust_time = 0  # 환경오염 발생 후 시간
-        
+
         # 물뿌리개, 살충제, 우산 중 어느 버튼이 선택되었는지 확인하는 변수
         self.which_btn = 0
-        
+
         # 벌레가 나타난 상태인지 확인하는 변수
         self.isBug = False
         # 환경오염이 발생한 상태인지 확인하는 변수
@@ -67,7 +68,7 @@ class GrawingSeed(QWidget):
         main_background = QtGui.QPixmap("./images/main_background.png")  # 사진 넣을 pixmap
         self.main_background_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
         self.main_background_lb.setPixmap(main_background)  # 메인 배경 사진의 pixmap설정
-        
+
         # 화면들 초기화
         self.record_background_lb = QLabel()  # 메인 배경 사진을 넣을 라벨
         self.rule_background_lb = QLabel()
@@ -316,7 +317,7 @@ class GrawingSeed(QWidget):
 
     # 게임 시작 함수
     def start_play_game(self):
-        self.btn_sound()    # 버튼 클릭 효과음 재생
+        self.btn_sound()  # 버튼 클릭 효과음 재생
 
         # 배경 사진 설정
         self.game_background_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
@@ -326,7 +327,7 @@ class GrawingSeed(QWidget):
 
         # 게임 엔진 시작
         self.game_engine()
-        
+
         # 게임 타이머 시작
         self.timer.start()
 
@@ -349,13 +350,13 @@ class GrawingSeed(QWidget):
 
     # 게임 오버 화면
     def game_over(self):
-        self.timer.stop()   # 게임 타이머 정지
-        self.time = 0   # 게임 시간 초기화 
-        self.bug_timer.stop()   # 벌레 타이머 정지
-        self.bug_time = 0   # 벌레 시간 초기화 
-        self.dust_timer.stop()   # 환경오염 타이머 정지
+        self.timer.stop()  # 게임 타이머 정지
+        self.time = 0  # 게임 시간 초기화
+        self.bug_timer.stop()  # 벌레 타이머 정지
+        self.bug_time = 0  # 벌레 시간 초기화
+        self.dust_timer.stop()  # 환경오염 타이머 정지
         self.dust_time = 0  # 환경오염 시간 초기화
-        
+
         # 게임오버 효과음 재생
         game_over_sound = mixer.Sound('./music/game_over_sound2.mp3')
         game_over_sound.play()
@@ -365,7 +366,7 @@ class GrawingSeed(QWidget):
         game_background_3 = QtGui.QPixmap("./images/game_over.png")  # 사진 넣을 pixmap
         self.game_over_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
         self.game_over_lb.setPixmap(game_background_3)  # 메인 배경 사진의 pixmap설정
-        
+
         # 홈으로 버튼
         self.game_over_home = QPushButton("", self.game_over_lb)
         self.game_over_home.setGeometry(275, 438, 240, 100)
@@ -378,7 +379,7 @@ class GrawingSeed(QWidget):
         self.use_water = 0
         self.use_pesticide = 0
         self.use_umbrella = 0
-        
+
         # 환경오염 발생 시간 리스트, 발생 횟수 초기화
         self.dust_times = []
         self.dust_count = 0
@@ -418,40 +419,35 @@ class GrawingSeed(QWidget):
         self.score_label.setFont(QFont('JalnanOTF', 60))
         self.score_label.setAlignment(QtCore.Qt.AlignVCenter)
 
-        # 점수에 따른 화면 설정
-        # 점수가 400 이하일 시 별 1개
-        if score_result <= 400:
+        # 배경 사진 설정
+        if score_result <= 200:
             game_background_4 = QtGui.QPixmap("./images/one_star.png")  # 사진 넣을 pixmap
             self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
             self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
             bonus = 20
             self.star_count = 1
             self.score_label.setText(str(score_result + bonus) + "점")
-        # 점수가 800 이하일 시 별 2개
-        elif score_result <= 800:
+        elif score_result <= 400:
             game_background_4 = QtGui.QPixmap("./images/two_stars.png.png")  # 사진 넣을 pixmap
             self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
             self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
             bonus = 50
             self.star_count = 2
             self.score_label.setText(str(score_result + bonus) + "점")
-        # 점수가 1200 이하일 시 별 3개
-        elif score_result <= 1200:
+        elif score_result <= 600:
             game_background_4 = QtGui.QPixmap("./images/three_stars.png")  # 사진 넣을 pixmap
             self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
             self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
             bonus = 90
             self.star_count = 3
             self.score_label.setText(str(score_result + bonus) + "점")
-        # 점수가 1400 이하일 시 별 4개
-        elif score_result <= 1400:
+        elif score_result <= 800:
             game_background_4 = QtGui.QPixmap("./images/four_stars.png")  # 사진 넣을 pixmap
             self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
             self.game_success_lb.setPixmap(game_background_4)  # 메인 배경 사진의 pixmap설정
             bonus = 140
             self.star_count = 4
             self.score_label.setText(str(score_result + bonus) + "점")
-        # 점수가 3000 이하일 시 별 5개
         elif score_result <= 2000:
             game_background_4 = QtGui.QPixmap("./images/five_stars.png")  # 사진 넣을 pixmap
             self.game_success_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
@@ -459,7 +455,6 @@ class GrawingSeed(QWidget):
             bonus = 200
             self.star_count = 5
             self.score_label.setText(str(score_result + bonus) + "점")
-        # 나올 수 없는 점수
         else:
             print("에러 : 나올 수 없는 점수 나옴")
 
@@ -468,8 +463,7 @@ class GrawingSeed(QWidget):
         self.use_water = 0
         self.use_pesticide = 0
         self.use_umbrella = 0
-        
-        # 홈으로 버튼
+
         self.btn_go_main = QPushButton("", self.game_success_lb)
         self.btn_go_main.setGeometry(132, 517, 240, 80)
         self.btn_go_main.clicked.connect(self.go_to_home)
@@ -477,7 +471,6 @@ class GrawingSeed(QWidget):
         opacity_effect1.setOpacity(0)
         self.btn_go_main.setGraphicsEffect(opacity_effect1)
 
-        # 기록하기 버튼
         self.record_btn = QPushButton("", self.game_success_lb)
         self.record_btn.setGeometry(430, 517, 240, 80)
         self.record_btn.clicked.connect(self.write_game_record)
@@ -490,15 +483,16 @@ class GrawingSeed(QWidget):
         self.game_success_lb.setVisible(True)
 
         # 게임 종료시 모든 타이머 종료
-        self.timer.stop()   # 게임 시간 타이머
-        self.dust_timer.stop()   # 환경오염 타이머
-        self.bug_timer.stop()   # 벌레 타이머
-        self.item_timer.stop()   # 아이템 대기 시간 타이머
+        self.timer.stop()
+        self.dust_timer.stop()
+        self.bug_timer.stop()
+        self.item_timer.stop()
 
     # 점수를 계산하는 함수
     def mark_score(self):
-        self.score = self.use_water * 8 + self.bug_success * 13 + self.dust_success * 13 + (120 - self.time) * 8 + self.remove_weed * 10
-        print(f'**점수** : " + {self.score}') # 디버깅용 출력
+        self.score = self.use_water * 8 + self.bug_success * 13 + self.dust_success * 13 + (
+                    120 - self.time) * 8 + self.remove_weed * 10
+        print(f'**점수** : " + {self.score}')  # 디버깅용 출력
         return self.score
 
     # 게임 엔진
@@ -814,9 +808,11 @@ class GrawingSeed(QWidget):
                     self.weed2.setVisible(True)
                     self.weed2.setStyleSheet("background-image : url(./images/weed_ver2.png); border: 0px solid black;")
                     self.weed11.setVisible(True)
-                    self.weed11.setStyleSheet("background-image : url(./images/weed_ver4.png); border: 0px solid black;")
+                    self.weed11.setStyleSheet(
+                        "background-image : url(./images/weed_ver4.png); border: 0px solid black;")
                     self.weed12.setVisible(True)
-                    self.weed12.setStyleSheet("background-image : url(./images/weed_ver5.png); border: 0px solid black;")
+                    self.weed12.setStyleSheet(
+                        "background-image : url(./images/weed_ver5.png); border: 0px solid black;")
                     self.weed_count += 1
                 elif self.weed_count == 2:
                     self.weed3.setVisible(True)
@@ -824,9 +820,11 @@ class GrawingSeed(QWidget):
                     self.weed4.setVisible(True)
                     self.weed4.setStyleSheet("background-image : url(./images/weed_ver1.png); border: 0px solid black;")
                     self.weed13.setVisible(True)
-                    self.weed13.setStyleSheet("background-image : url(./images/weed_ver6.png); border: 0px solid black;")
+                    self.weed13.setStyleSheet(
+                        "background-image : url(./images/weed_ver6.png); border: 0px solid black;")
                     self.weed14.setVisible(True)
-                    self.weed14.setStyleSheet("background-image : url(./images/weed_ver4.png); border: 0px solid black;")
+                    self.weed14.setStyleSheet(
+                        "background-image : url(./images/weed_ver4.png); border: 0px solid black;")
                     self.weed_count += 1
                 elif self.weed_count == 3:
                     self.weed5.setVisible(True)
@@ -834,9 +832,11 @@ class GrawingSeed(QWidget):
                     self.weed6.setVisible(True)
                     self.weed6.setStyleSheet("background-image : url(./images/weed_ver3.png); border: 0px solid black;")
                     self.weed15.setVisible(True)
-                    self.weed15.setStyleSheet("background-image : url(./images/weed_ver5.png); border: 0px solid black;")
+                    self.weed15.setStyleSheet(
+                        "background-image : url(./images/weed_ver5.png); border: 0px solid black;")
                     self.weed16.setVisible(True)
-                    self.weed16.setStyleSheet("background-image : url(./images/weed_ver6.png); border: 0px solid black;")
+                    self.weed16.setStyleSheet(
+                        "background-image : url(./images/weed_ver6.png); border: 0px solid black;")
                     self.weed_count += 1
                 elif self.weed_count == 4:
                     self.weed7.setVisible(True)
@@ -844,19 +844,24 @@ class GrawingSeed(QWidget):
                     self.weed8.setVisible(True)
                     self.weed8.setStyleSheet("background-image : url(./images/weed_ver2.png); border: 0px solid black;")
                     self.weed17.setVisible(True)
-                    self.weed17.setStyleSheet("background-image : url(./images/weed_ver4.png); border: 0px solid black;")
+                    self.weed17.setStyleSheet(
+                        "background-image : url(./images/weed_ver4.png); border: 0px solid black;")
                     self.weed18.setVisible(True)
-                    self.weed18.setStyleSheet("background-image : url(./images/weed_ver5.png); border: 0px solid black;")
+                    self.weed18.setStyleSheet(
+                        "background-image : url(./images/weed_ver5.png); border: 0px solid black;")
                     self.weed_count += 1
                 elif self.weed_count == 5:
                     self.weed9.setVisible(True)
                     self.weed9.setStyleSheet("background-image : url(./images/weed_ver3.png); border: 0px solid black;")
                     self.weed10.setVisible(True)
-                    self.weed10.setStyleSheet("background-image : url(./images/weed_ver1.png); border: 0px solid black;")
+                    self.weed10.setStyleSheet(
+                        "background-image : url(./images/weed_ver1.png); border: 0px solid black;")
                     self.weed19.setVisible(True)
-                    self.weed19.setStyleSheet("background-image : url(./images/weed_ver6.png); border: 0px solid black;")
+                    self.weed19.setStyleSheet(
+                        "background-image : url(./images/weed_ver6.png); border: 0px solid black;")
                     self.weed20.setVisible(True)
-                    self.weed20.setStyleSheet("background-image : url(./images/weed_ver4.png); border: 0px solid black;")
+                    self.weed20.setStyleSheet(
+                        "background-image : url(./images/weed_ver4.png); border: 0px solid black;")
                     self.weed_count = 0
 
     # 잡초 클릭 이벤트
@@ -1175,6 +1180,18 @@ class GrawingSeed(QWidget):
         self.record_background_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
         self.record_background_lb.setPixmap(record_background_1)  # 메인 배경 사진의 pixmap설정
 
+        # 누적 점수 라벨
+        self.score_label = QLabel("누적점수 : " + str(self.sum_score()), self.record_background_lb)
+        self.score_label.setGeometry(100, 180, 700, 300)
+        self.score_label.setFont(QFont('JalnanOTF', 40))
+        self.score_label.setAlignment(QtCore.Qt.AlignVCenter)
+        
+        # 안내 멘트
+        self.accumulate_label = QLabel("3개의 정렬 방식 중 하나를 골라주세요", self.record_background_lb)
+        self.accumulate_label.setGeometry(100, 320, 700, 300)
+        self.accumulate_label.setFont(QFont('JalnanOTF', 21))
+        self.accumulate_label.setAlignment(QtCore.Qt.AlignVCenter)
+
         # 뒤로가기 버튼
         btn_return = QPushButton("", self.record_background_lb)
         btn_return.setGeometry(75, 55, 60, 60)
@@ -1210,6 +1227,43 @@ class GrawingSeed(QWidget):
         self.main_background_lb.setVisible(False)
         self.record_background_lb.setVisible(True)
 
+    def sum_score(self):
+        # csv 파일
+        sum_score = 0
+        empty = ""
+        empty2 = ""
+        li = []
+        print("-----------------")
+        with open("./text/score.csv", 'rt', encoding="utf-8") as csvfile:
+            reader = csv.reader(csvfile, delimiter='\n')
+            for row in reader:
+                empty += ''.join(row)
+                empty += '\n'
+                empty = empty.replace(',', '  ')
+                print(str(row))
+                empty2 = empty.replace('\n', '  ')
+                empty2 = empty2.replace('  ', ',')
+                empty2 = empty2.replace(',,', ',')
+                empty2 = empty2.replace('star', '')
+                empty2 = empty2.replace('name', '')
+                empty2 = empty2.replace('score', '')
+                empty2 = empty2.replace('datetime', '')
+                empty2 = empty2.replace(',,,,', '')
+                li = empty2.split(',')
+        print(empty)
+        print("=============")
+        print(empty2)
+        print("=============")
+        print(li)
+
+        count = 0
+        for i in li:
+            if count % 4 == 2:
+                sum_score += int(i)
+            count += 1
+        print("합 : " + str(sum_score))
+        return sum_score
+
     def high_score(self):
         print("high score")
 
@@ -1223,15 +1277,15 @@ class GrawingSeed(QWidget):
         self.record_high_background_lb.setPixmap(record_background_1)  # 메인 배경 사진의 pixmap설정
 
         # 높은 점수 정렬 버튼
-        btn_high_score = QPushButton("dd", self.record_high_background_lb)
+        btn_high_score = QPushButton("", self.record_high_background_lb)
         btn_high_score.setGeometry(85, 147, 180, 55)
-        btn_high_score.clicked.connect(self.high_score)
+        btn_high_score.clicked.connect(self.show_game_record)
         opacity_effect = QGraphicsOpacityEffect(btn_high_score)
         opacity_effect.setOpacity(0)
         btn_high_score.setGraphicsEffect(opacity_effect)
 
         # 낮은 점수 정렬 버튼
-        btn_low_score = QPushButton("dd", self.record_high_background_lb)
+        btn_low_score = QPushButton("", self.record_high_background_lb)
         btn_low_score.setGeometry(311, 147, 180, 55)
         btn_low_score.clicked.connect(self.low_score)
         opacity_effect = QGraphicsOpacityEffect(btn_low_score)
@@ -1239,7 +1293,7 @@ class GrawingSeed(QWidget):
         btn_low_score.setGraphicsEffect(opacity_effect)
 
         # 최신순 점수 정렬 버튼
-        btn_new_score = QPushButton("dd", self.record_high_background_lb)
+        btn_new_score = QPushButton("", self.record_high_background_lb)
         btn_new_score.setGeometry(537, 147, 180, 55)
         btn_new_score.clicked.connect(self.new_score)
         opacity_effect = QGraphicsOpacityEffect(btn_new_score)
@@ -1261,12 +1315,13 @@ class GrawingSeed(QWidget):
 
         # 높은 점수 순 scrollArea 선언
         high_scrollArea = QScrollArea(self.record_high_background_lb)
-        high_scrollArea.setGeometry(82, 215, 640, 400)
+        high_scrollArea.resize(640, 400)
+        high_scrollArea.move(82, 215)
         high_scrollArea.setStyleSheet("background-color: #ffe22f; color:#022c00;")
 
         # 정렬된 df를 string형으로 형변환 후 QLabel에 setText해줌
         high_scores = QLabel(str(df))
-        high_scores.setGeometry(10, 5, 620, 390)
+        high_scores.setGeometry(10, 5, 620, 10000)
         high_scores.setAlignment(Qt.AlignHCenter)
         high_scores.setFont(QFont('JalnanOTF', 20))
         high_scrollArea.setWidget(high_scores)
@@ -1296,7 +1351,7 @@ class GrawingSeed(QWidget):
         # 낮은 점수 정렬 버튼
         btn_low_score = QPushButton("", self.record_low_background_lb)
         btn_low_score.setGeometry(311, 147, 180, 55)
-        btn_low_score.clicked.connect(self.low_score)
+        btn_low_score.clicked.connect(self.show_game_record)
         opacity_effect = QGraphicsOpacityEffect(btn_low_score)
         opacity_effect.setOpacity(0)
         btn_low_score.setGraphicsEffect(opacity_effect)
@@ -1324,12 +1379,13 @@ class GrawingSeed(QWidget):
 
         # 낮은 점수 순 scrollArea 선언
         low_scrollArea = QScrollArea(self.record_low_background_lb)
-        low_scrollArea.setGeometry(82, 215, 640, 400)
+        low_scrollArea.resize(640, 400)
+        low_scrollArea.move(82, 215)
         low_scrollArea.setStyleSheet("background-color: #ffe22f; color:#022c00;")
 
         # 정렬된 df를 string형으로 형변환 후 QLabel에 setText해줌
         low_scores = QLabel(str(df))
-        low_scores.setGeometry(10, 5, 620, 390)
+        low_scores.setGeometry(10, 5, 620, 10000)
         low_scores.setAlignment(Qt.AlignHCenter)
         low_scores.setFont(QFont('JalnanOTF', 20))
         low_scrollArea.setWidget(low_scores)
@@ -1367,7 +1423,7 @@ class GrawingSeed(QWidget):
         # 최신순 점수 정렬 버튼
         btn_new_score = QPushButton("", self.record_new_background_lb)
         btn_new_score.setGeometry(537, 147, 180, 55)
-        btn_new_score.clicked.connect(self.new_score)
+        btn_new_score.clicked.connect(self.show_game_record)
         opacity_effect = QGraphicsOpacityEffect(btn_new_score)
         opacity_effect.setOpacity(0)
         btn_new_score.setGraphicsEffect(opacity_effect)
@@ -1387,12 +1443,13 @@ class GrawingSeed(QWidget):
 
         # 최신순 scrollArea 선언
         new_scrollArea = QScrollArea(self.record_new_background_lb)
-        new_scrollArea.setGeometry(82, 215, 640, 400)
+        new_scrollArea.resize(640, 400)
+        new_scrollArea.move(82, 215)
         new_scrollArea.setStyleSheet("background-color: #ffe22f; color:#022c00;")
 
         # 정렬된 df를 string형으로 형변환 후 QLabel에 setText해줌
         new_scores = QLabel(str(df))
-        new_scores.setGeometry(10, 5, 620, 390)
+        new_scores.setGeometry(10, 5, 620, 10000)
         new_scores.setAlignment(Qt.AlignHCenter)
         new_scores.setFont(QFont('JalnanOTF', 20))
         new_scrollArea.setWidget(new_scores)
@@ -1425,6 +1482,7 @@ class GrawingSeed(QWidget):
                 f = open('./text/score.csv', 'a', newline='', encoding="utf-8")
                 wr = csv.writer(f)
                 wr.writerow([self.star_count, nickname, self.score_label.text()[:-1], current_time])
+                self.go_to_home()
             else:
                 q = QMessageBox(QMessageBox.Warning, "비속어 사용 감지", "비속어는 사용할 수 없습니다")
                 q.setStandardButtons(QMessageBox.Ok);
@@ -1485,10 +1543,11 @@ class GrawingSeed(QWidget):
         self.record_high_background_lb.setVisible(False)
         self.record_low_background_lb.setVisible(False)
         self.record_new_background_lb.setVisible(False)
-    
+
     # 잘못된 아이템 선택했거나 아이템을 선택하지 않았을 때
     def none_item(self):
-        reply = QMessageBox.question(self, '아이템이 잘못되었거나 없습니다', '아이템을 선택해주세요', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(self, '잘못된 아이템', '아이템을 선택해주세요', QMessageBox.Yes | QMessageBox.No,
+                                     QMessageBox.No)
         if reply == QMessageBox.Yes:
             return
         else:
