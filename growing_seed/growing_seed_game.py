@@ -65,7 +65,7 @@ class GrawingSeed(QWidget):
 
         # 메인 화면 설정
         self.main_background_lb = QLabel(self)  # 메인 배경 사진을 넣을 라벨
-        main_background = QtGui.QPixmap("./images/main_background.png")  # 사진 넣을 pixmap
+        main_background = QtGui.QPixmap("./images/main_background_sound.png")  # 사진 넣을 pixmap
         self.main_background_lb.resize(800, 650)  # 메인 배경 사진 라벨 사이즈
         self.main_background_lb.setPixmap(main_background)  # 메인 배경 사진의 pixmap설정
 
@@ -91,6 +91,22 @@ class GrawingSeed(QWidget):
 
         # 아이콘 설정
         self.setWindowIcon(QIcon('./images/icon.png'))
+
+        self.sound_off_btn = QPushButton("", self.main_background_lb)
+        self.sound_off_btn.setGeometry(45, 40, 65, 60)
+        self.sound_off_btn.clicked.connect(self.sound_off)
+        opacity_effect = QGraphicsOpacityEffect(self.sound_off_btn)
+        opacity_effect.setOpacity(0)
+        self.sound_off_btn.setGraphicsEffect(opacity_effect)
+        self.sound_off_btn.setVisible(True)
+
+        self.sound_on_btn = QPushButton("", self.main_background_lb)
+        self.sound_on_btn.setGeometry(45, 40, 65, 60)
+        self.sound_on_btn.clicked.connect(self.sound_on)
+        opacity_effect = QGraphicsOpacityEffect(self.sound_on_btn)
+        opacity_effect.setOpacity(0)
+        self.sound_on_btn.setGraphicsEffect(opacity_effect)
+        self.sound_on_btn.setVisible(False)
 
         # 씨앗씨 이야기 보기 버튼
         siasi_story_btn = QPushButton("", self.main_background_lb)
@@ -746,7 +762,7 @@ class GrawingSeed(QWidget):
                 GrawingSeed.current_level = 4
 
         elif level == 4:
-            if GrawingSeed.use_water >= 9 and self.bug_success >= 2 and self.dust_success >= 2:
+            if GrawingSeed.use_water >= 9 and self.bug_success >= 1 and self.dust_success >= 1:
                 self.game_success()
 
                 GrawingSeed.water_btn_time = 0  # 아이템 초수 초기화
@@ -1310,7 +1326,7 @@ class GrawingSeed(QWidget):
 
         # csv 파일
         df = pd.read_csv("./text/score.csv")  # csv파일 읽어보기
-        df = df.sort_values(by=['score'], ascending=False)  # 점수 높은 순으로 정렬
+        df = df.sort_values(by=['score'], ignore_index=True, ascending=False)  # 점수 높은 순으로 정렬
         print(df)  # 디버깅용 출력
 
         # 높은 점수 순 scrollArea 선언
@@ -1374,7 +1390,7 @@ class GrawingSeed(QWidget):
 
         # csv 파일
         df = pd.read_csv("./text/score.csv")  # csv파일 읽어보기
-        df = df.sort_values(by=['score'], ascending=True)  # 점수 낮은 순으로 정렬
+        df = df.sort_values(by=['score'], ignore_index=True, ascending=True)  # 점수 낮은 순으로 정렬
         print(df)  # 디버깅용 출력
 
         # 낮은 점수 순 scrollArea 선언
@@ -1438,7 +1454,7 @@ class GrawingSeed(QWidget):
 
         # csv 파일
         df = pd.read_csv("./text/score.csv")  # csv파일 읽어보기
-        df = df.sort_values(by=['datetime'], ascending=False)  # 점수 낮은 순으로 정렬
+        df = df.sort_values(by=['datetime'], ignore_index=True, ascending=False)  # 점수 낮은 순으로 정렬
         print(df)  # 디버깅용 출력
 
         # 최신순 scrollArea 선언
@@ -1566,6 +1582,34 @@ class GrawingSeed(QWidget):
             self.dust_count = 0
             self.bug_times = []
             self.bug_time = 0
+
+    # 키보드 입력으로 게임 종료
+    def keyPressEvent(self, key):
+        if key.key() == Qt.Key_Escape:
+            # 메인 페이지로 이동
+            self.sound_off()
+            self.go_to_home()
+        if key.key() == Qt.Key_F4:
+            # 강제 종료
+            quit()
+    
+    # 배경음악 끄기
+    def sound_off(self):
+        pygame.mixer.music.set_volume(0)
+        # 메인 화면 설정
+        main_background = QtGui.QPixmap("./images/main_background_noSound.png")  # 사진 넣을 pixmap
+        self.main_background_lb.setPixmap(main_background)  # 메인 배경 사진의 pixmap설정
+        self.sound_off_btn.setVisible(False)
+        self.sound_on_btn.setVisible(True)
+
+    # 배경음악 켜기
+    def sound_on(self):
+        pygame.mixer.music.set_volume(1)
+        # 메인 화면 설정
+        main_background = QtGui.QPixmap("./images/main_background_sound.png")  # 사진 넣을 pixmap
+        self.main_background_lb.setPixmap(main_background)  # 메인 배경 사진의 pixmap설정
+        self.sound_off_btn.setVisible(True)
+        self.sound_on_btn.setVisible(False)
 
     # window창의 X버튼 클릭 시 이벤트
     def closeEvent(self, event):
