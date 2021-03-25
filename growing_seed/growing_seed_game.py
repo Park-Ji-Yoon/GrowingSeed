@@ -4,6 +4,7 @@ import threading
 import random
 import warnings
 
+# import ~ from구문
 from PySide2 import QtCore, QtGui
 from PySide2.QtCore import QTimer, Qt
 from PySide2.QtGui import QFont, QIcon, QPixmap
@@ -15,7 +16,6 @@ from datetime import datetime
 
 # 경고(경고 메시지) 무시
 warnings.filterwarnings(action='ignore')
-
 
 # 게임 클래스
 class GrawingSeed(QWidget):
