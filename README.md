@@ -1,10 +1,6 @@
 # 씨앗씨 키우기 - Growing Seed
 > 환경오염과 벌레에 맞서 씨앗씨를 키우는 게임
 
-<!-- [![NPM Version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
-[![Downloads Stats][npm-downloads]][npm-url] -->
-
 아이템을 사용해 환경오염, 벌레에 맞서 씨앗씨를 키우는 게임입니다.  <br>
 아이템에는 물뿌리개, 벌레 퇴치제, 우산이 있습니다.   <br>
 씨앗씨를 빠른 시간내에 죽이지 않고 키우면 성공입니다. 
